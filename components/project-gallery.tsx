@@ -1,5 +1,10 @@
 import Image from "next/image";
-import { useRef, useSyncExternalStore, type KeyboardEvent } from "react";
+import {
+  useRef,
+  useSyncExternalStore,
+  type KeyboardEvent,
+  type PointerEvent,
+} from "react";
 import {
   defaultProjectSlug,
   projects,
@@ -21,22 +26,24 @@ function subscribeToNarrowSelector(onStoreChange: () => void) {
 
 const getNarrowSelectorSnapshot = () => window.matchMedia(narrowSelectorQuery).matches;
 const getServerNarrowSelectorSnapshot = () => false;
+const swipeThreshold = 48;
 
 export function ProjectGallery({ selectedSlug, onSelect }: ProjectGalleryProps) {
   const selectedProject =
     projects.find(({ slug }) => slug === selectedSlug) ?? projects[0];
   const selectedIndex = projects.findIndex(({ slug }) => slug === selectedProject.slug);
   const tabRefs = useRef<Array<HTMLButtonElement | null>>([]);
+  const swipeStart = useRef<{ pointerId: number; x: number; y: number } | null>(null);
   const isNarrow = useSyncExternalStore(
     subscribeToNarrowSelector,
     getNarrowSelectorSnapshot,
     getServerNarrowSelectorSnapshot,
   );
 
-  function selectByIndex(index: number) {
+  function selectByIndex(index: number, focusIndicator = false) {
     const project = projects[(index + projects.length) % projects.length];
     onSelect(project.slug);
-    tabRefs.current[index]?.focus();
+    if (focusIndicator) tabRefs.current[index]?.focus();
   }
 
   function selectByOffset(offset: number) {
@@ -44,19 +51,45 @@ export function ProjectGallery({ selectedSlug, onSelect }: ProjectGalleryProps) 
   }
 
   function handleTabKeyDown(event: KeyboardEvent<HTMLButtonElement>, index: number) {
-    const nextKey = isNarrow ? "ArrowRight" : "ArrowDown";
-    const previousKey = isNarrow ? "ArrowLeft" : "ArrowUp";
     let nextIndex: number | undefined;
 
-    if (event.key === nextKey) nextIndex = (index + 1) % projects.length;
-    if (event.key === previousKey) nextIndex = (index - 1 + projects.length) % projects.length;
+    if (event.key === "ArrowRight") nextIndex = (index + 1) % projects.length;
+    if (event.key === "ArrowLeft") nextIndex = (index - 1 + projects.length) % projects.length;
     if (event.key === "Home") nextIndex = 0;
     if (event.key === "End") nextIndex = projects.length - 1;
 
     if (nextIndex !== undefined) {
       event.preventDefault();
-      selectByIndex(nextIndex);
+      selectByIndex(nextIndex, true);
     }
+  }
+
+  function handlePointerDown(event: PointerEvent<HTMLElement>) {
+    if (!isNarrow || event.pointerType !== "touch") return;
+    swipeStart.current = { pointerId: event.pointerId, x: event.clientX, y: event.clientY };
+
+    try {
+      event.currentTarget.setPointerCapture(event.pointerId);
+    } catch {
+      // Synthetic pointer events may not register an active pointer to capture.
+    }
+  }
+
+  function handlePointerUp(event: PointerEvent<HTMLElement>) {
+    const start = swipeStart.current;
+    swipeStart.current = null;
+    if (!start || start.pointerId !== event.pointerId) return;
+
+    const horizontalDistance = event.clientX - start.x;
+    const verticalDistance = event.clientY - start.y;
+    if (
+      Math.abs(horizontalDistance) < swipeThreshold ||
+      Math.abs(horizontalDistance) <= Math.abs(verticalDistance)
+    ) {
+      return;
+    }
+
+    selectByOffset(horizontalDistance < 0 ? 1 : -1);
   }
 
   return (
@@ -67,6 +100,11 @@ export function ProjectGallery({ selectedSlug, onSelect }: ProjectGalleryProps) 
         data-project={selectedProject.slug}
         data-testid="selected-project"
         id="selected-project-panel"
+        onPointerCancel={() => {
+          swipeStart.current = null;
+        }}
+        onPointerDown={handlePointerDown}
+        onPointerUp={handlePointerUp}
         role="tabpanel"
       >
         <Image
@@ -107,37 +145,36 @@ export function ProjectGallery({ selectedSlug, onSelect }: ProjectGalleryProps) 
         </div>
       </article>
 
-      {isNarrow ? (
-        <div
-          aria-label="Select a project"
-          aria-orientation="horizontal"
-          className="project-selector"
-          role="tablist"
-        >
-          {projects.map((project, index) => {
-            const isSelected = project.slug === selectedProject.slug;
-            return (
-              <button
-                aria-controls="selected-project-panel"
-                aria-selected={isSelected}
-                className="project-selector__tab"
-                id={`project-tab-${project.slug}`}
-                key={project.slug}
-                onClick={() => onSelect(project.slug)}
-                onKeyDown={(event) => handleTabKeyDown(event, index)}
-                ref={(element) => {
-                  tabRefs.current[index] = element;
-                }}
-                role="tab"
-                tabIndex={isSelected ? 0 : -1}
-                type="button"
-              >
-                {project.name}
-              </button>
-            );
-          })}
-        </div>
-      ) : (
+      <div
+        aria-label="Select a project"
+        aria-orientation="horizontal"
+        className="project-pagination"
+        role="tablist"
+      >
+        {projects.map((project, index) => {
+          const isSelected = project.slug === selectedProject.slug;
+          return (
+            <button
+              aria-controls="selected-project-panel"
+              aria-label={`Show project: ${project.name}`}
+              aria-selected={isSelected}
+              className="project-pagination__dot"
+              id={`project-tab-${project.slug}`}
+              key={project.slug}
+              onClick={() => onSelect(project.slug)}
+              onKeyDown={(event) => handleTabKeyDown(event, index)}
+              ref={(element) => {
+                tabRefs.current[index] = element;
+              }}
+              role="tab"
+              tabIndex={isSelected ? 0 : -1}
+              type="button"
+            />
+          );
+        })}
+      </div>
+
+      {!isNarrow ? (
         <nav aria-label="Browse projects" className="project-arrows">
           <button
             aria-label={`Previous project: ${projects[(selectedIndex - 1 + projects.length) % projects.length].name}`}
@@ -156,7 +193,7 @@ export function ProjectGallery({ selectedSlug, onSelect }: ProjectGalleryProps) 
             <span aria-hidden="true">→</span>
           </button>
         </nav>
-      )}
+      ) : null}
     </div>
   );
 }

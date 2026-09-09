@@ -10,7 +10,7 @@ async function openProjects(page: Page, slug?: string) {
   );
 }
 
-function projectSelector(page: Page) {
+function projectPagination(page: Page) {
   return page.getByRole("tablist", { name: "Select a project" });
 }
 
@@ -105,54 +105,82 @@ test("uses one keyboard-operable edge selector on desktop", async ({ page }) => 
 
   const selector = projectArrows(page);
   await expect(selector).toBeVisible();
-  await expect(page.getByRole("tablist", { name: "Select a project" })).toHaveCount(0);
+  const pagination = projectPagination(page);
+  await expect(pagination).toBeVisible();
+  await expect(pagination.getByRole("tab")).toHaveCount(3);
+  await expect(pagination.getByRole("tab").first()).toHaveAttribute(
+    "aria-selected",
+    "true",
+  );
+  await pagination.getByRole("tab").first().focus();
+  await page.keyboard.press("ArrowRight");
+  await expect(pagination.getByRole("tab").nth(1)).toBeFocused();
+  await expect(page).toHaveURL(/#projects\/haas$/);
 
-  const next = selector.getByRole("button", { name: "Next project: HaaS" });
+  const next = selector.getByRole("button", { name: "Next project: ER-404" });
   await next.focus();
   await page.keyboard.press("Enter");
-  await expect(page.getByRole("button", { name: "Next project: ER-404" })).toBeVisible();
-  await expect(page).toHaveURL(/#projects\/haas$/);
+  await expect(page.getByRole("button", { name: "Next project: FinderlyFix" })).toBeVisible();
+  await expect(page).toHaveURL(/#projects\/er-404$/);
 
   const edges = await Promise.all([
     page
-      .getByRole("button", { name: "Previous project: FinderlyFix" })
+      .getByRole("button", { name: "Previous project: HaaS" })
       .evaluate((button) => button.getBoundingClientRect().left),
     page
-      .getByRole("button", { name: "Next project: ER-404" })
+      .getByRole("button", { name: "Next project: FinderlyFix" })
       .evaluate((button) => button.getBoundingClientRect().right),
   ]);
   expect(edges[0]).toBeLessThan(20);
   expect(1920 - edges[1]).toBeLessThan(20);
 });
 
-test("uses one compact horizontal selector on narrow screens", async ({ page }) => {
+test("uses top-overlay pagination and touch swiping on narrow screens", async ({ page }) => {
   await page.setViewportSize({ width: 390, height: 844 });
   await openProjects(page);
 
-  const selector = projectSelector(page);
-  await expect(selector).toHaveAttribute("aria-orientation", "horizontal");
-  await expect(selector).toHaveCount(1);
+  const pagination = projectPagination(page);
+  await expect(pagination).toHaveAttribute("aria-orientation", "horizontal");
+  await expect(pagination).toHaveCount(1);
+  await expect(projectArrows(page)).toHaveCount(0);
 
-  const tabs = selector.getByRole("tab");
-  const positions = await tabs.evaluateAll((items) =>
-    items.map((item) => {
-      const rect = item.getBoundingClientRect();
-      return { left: rect.left, top: rect.top };
-    }),
-  );
-  expect(new Set(positions.map(({ left }) => Math.round(left))).size).toBe(3);
-  expect(new Set(positions.map(({ top }) => Math.round(top))).size).toBe(1);
+  const presentation = page.getByTestId("selected-project");
+  const placement = await Promise.all([
+    pagination.evaluate((element) => element.getBoundingClientRect().top),
+    presentation.evaluate((element) => element.getBoundingClientRect().top),
+  ]);
+  expect(placement[0]).toBeGreaterThan(placement[1]);
+  expect(placement[0] - placement[1]).toBeLessThan(80);
 
+  const tabs = pagination.getByRole("tab");
   await tabs.first().focus();
   await page.keyboard.press("ArrowRight");
   await expect(tabs.nth(1)).toBeFocused();
   await expect(tabs.nth(1)).toHaveAttribute("aria-selected", "true");
+
+  const box = await presentation.boundingBox();
+  expect(box).not.toBeNull();
+  await presentation.dispatchEvent("pointerdown", {
+    pointerId: 1,
+    pointerType: "touch",
+    clientX: box!.x + box!.width * 0.8,
+    clientY: box!.y + 180,
+  });
+  await presentation.dispatchEvent("pointerup", {
+    pointerId: 1,
+    pointerType: "touch",
+    clientX: box!.x + box!.width * 0.2,
+    clientY: box!.y + 185,
+  });
+  await expect(page).toHaveURL(/#projects\/er-404$/);
+  await expect(tabs.nth(2)).toHaveAttribute("aria-selected", "true");
 });
 
-test("uses the compact horizontal selector at tablet width", async ({ page }) => {
+test("uses top-overlay pagination at tablet width", async ({ page }) => {
   await page.setViewportSize({ width: 834, height: 1112 });
   await openProjects(page);
-  await expect(projectSelector(page)).toHaveAttribute("aria-orientation", "horizontal");
+  await expect(projectPagination(page)).toHaveAttribute("aria-orientation", "horizontal");
+  await expect(projectArrows(page)).toHaveCount(0);
 });
 
 for (const project of ["finderly", "haas", "er-404"] as const) {
