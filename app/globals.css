@@ -601,9 +601,10 @@ a {
 }
 
 .experience-progression__branch {
+  --experience-branch-offset: clamp(1.6rem, 2.5vw, 2.5rem);
   position: relative;
-  padding: 0.45rem 0 0.45rem 1.25rem;
-  margin-left: -1.25rem;
+  padding: 0.45rem 0 0.45rem var(--experience-branch-offset);
+  margin-left: calc(-1 * var(--experience-branch-offset));
 }
 
 .experience-progression__branch::before {
@@ -1044,6 +1045,10 @@ a {
     grid-template-columns: minmax(0, 1fr);
     gap: 0.15rem;
     padding: 0.5rem 0;
+  }
+
+  .experience-progression__branch {
+    --experience-branch-offset: 1.65rem;
   }
 
   .experience-role small {

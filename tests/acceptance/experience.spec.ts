@@ -37,6 +37,25 @@ test("starts with FinderlyFix selected in one connected career chronology", asyn
     l3harris.getByText("Technical Project Manager, RPA", { exact: true }),
   ).toBeVisible();
 
+  const progressionPath = await chronology.evaluate((element) => {
+    const branch = element.querySelector<HTMLElement>(".experience-progression__branch")!;
+    const chronologyPath = getComputedStyle(element, "::before");
+    const branchPath = getComputedStyle(branch, "::before");
+    return {
+      branchPathX:
+        branch.getBoundingClientRect().left + Number.parseFloat(branchPath.left),
+      chronologyPathX:
+        element.getBoundingClientRect().left + Number.parseFloat(chronologyPath.left),
+      rejoinsAtBottom: branchPath.borderBottomStyle === "solid",
+      splitsAtTop: branchPath.borderTopStyle === "solid",
+    };
+  });
+  expect(Math.abs(progressionPath.branchPathX - progressionPath.chronologyPathX)).toBeLessThan(
+    1,
+  );
+  expect(progressionPath.splitsAtTop).toBe(true);
+  expect(progressionPath.rejoinsAtBottom).toBe(true);
+
   const detail = page.getByRole("article");
   await expect(detail.getByRole("heading", { name: "FinderlyFix" })).toBeVisible();
   await expect(detail.getByText("Founding Engineer", { exact: true })).toBeVisible();
@@ -112,6 +131,12 @@ test("expands one role inline in the connected mobile chronology", async ({ page
       "[data-employer='strategic-retirement-partners']",
     )!;
     return {
+      detailFollowsSelectedRole: Boolean(
+        selectedButton.compareDocumentPosition(inlineDetail) & Node.DOCUMENT_POSITION_FOLLOWING,
+      ),
+      nextEmployerFollowsDetail: Boolean(
+        inlineDetail.compareDocumentPosition(nextEmployer) & Node.DOCUMENT_POSITION_FOLLOWING,
+      ),
       detailTop: inlineDetail.getBoundingClientRect().top,
       nextEmployerTop: nextEmployer.getBoundingClientRect().top,
       overflow: getComputedStyle(panel).overflowY,
@@ -121,6 +146,8 @@ test("expands one role inline in the connected mobile chronology", async ({ page
     };
   });
 
+  expect(flow.detailFollowsSelectedRole).toBe(true);
+  expect(flow.nextEmployerFollowsDetail).toBe(true);
   expect(flow.detailTop).toBeGreaterThanOrEqual(flow.selectedButtonBottom);
   expect(flow.nextEmployerTop).toBeGreaterThan(flow.detailTop);
   expect(flow.overflow).toBe("visible");

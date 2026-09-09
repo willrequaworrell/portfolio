@@ -9,7 +9,7 @@ import {
 
 function RoleDetail({ employer, role }: { employer: ExperienceEmployer; role: ExperienceRole }) {
   return (
-    <article className="experience-detail" data-testid="selected-experience">
+    <article className="experience-detail">
       <p className="experience-detail__eyebrow">Selected role</p>
       <h3>{employer.company}</h3>
       <p className="experience-detail__role">{role.title}</p>
@@ -104,6 +104,7 @@ export function ExperienceTimeline() {
                 return (
                   <div className="experience-role" key={role.id}>
                     <button
+                      aria-label={`${employer.company}, ${role.title}, ${role.dates}`}
                       aria-pressed={isSelected}
                       onClick={() => setSelectedRoleId(role.id)}
                       onKeyDown={(event) => handleRoleKeyDown(event, role.id)}

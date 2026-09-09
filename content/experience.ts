@@ -58,11 +58,7 @@ export const experienceEmployers = [
           "Owns conversation memory, project tracking, and synchronization across repeat visits.",
           "Contributes product design, UX direction, manual QA, and response-performance work.",
         ],
-        impacts: [
-          { label: "Modes", value: "Text + live video" },
-          { label: "Context", value: "Unified project memory" },
-          { label: "Focus", value: "Faster first response" },
-        ],
+        impacts: [],
         link: { label: "View related project", href: "#projects/finderly" },
       },
     ],
