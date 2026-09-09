@@ -1,0 +1,15 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1600 1000" role="img" aria-labelledby="title desc">
+  <title id="title">FinderlyFix interface placeholder</title>
+  <desc id="desc">Neutral editorial blocks suggesting a mobile home-repair conversation interface.</desc>
+  <rect width="1600" height="1000" fill="#31584f"/>
+  <path d="M0 690 520 320l420 260 660-430v850H0Z" fill="#c8c0a7" opacity=".42"/>
+  <circle cx="1280" cy="190" r="310" fill="#e5c947" opacity=".82"/>
+  <rect x="950" y="105" width="390" height="790" rx="54" fill="#f1e8d5" stroke="#17100e" stroke-width="18"/>
+  <rect x="1000" y="180" width="290" height="260" rx="20" fill="#8c9b8b"/>
+  <path d="m1000 395 102-110 72 64 116-122v213h-290Z" fill="#143e35" opacity=".72"/>
+  <rect x="1000" y="490" width="240" height="22" rx="11" fill="#17100e"/>
+  <rect x="1000" y="535" width="290" height="15" rx="7" fill="#786d62"/>
+  <rect x="1000" y="570" width="245" height="15" rx="7" fill="#786d62"/>
+  <rect x="1000" y="650" width="290" height="112" rx="24" fill="#143e35"/>
+  <text x="1145" y="718" text-anchor="middle" fill="#fffaf0" font-family="Arial, sans-serif" font-size="28" font-weight="700">DIAGNOSIS READY</text>
+</svg>

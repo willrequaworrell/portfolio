@@ -1,6 +1,8 @@
 "use client";
 
 import { useEffect, useSyncExternalStore } from "react";
+import { ProjectGallery } from "@/components/project-gallery";
+import { defaultProjectSlug, projects, type ProjectSlug } from "@/content/portfolio";
 
 type SectionId = "about" | "projects" | "experience" | "contact";
 
@@ -48,9 +50,18 @@ function sectionFromHash(hash: string): SectionId | null {
   return sectionIds.has(candidate as SectionId) ? (candidate as SectionId) : null;
 }
 
-function urlForSection(section: SectionId | null) {
+function projectFromHash(hash: string): ProjectSlug {
+  const [section, candidate] = hash.slice(1).split("/");
+  if (section !== "projects") return defaultProjectSlug;
+  return projects.some(({ slug }) => slug === candidate)
+    ? (candidate as ProjectSlug)
+    : defaultProjectSlug;
+}
+
+function pushHash(hash: string | null) {
   const base = `${window.location.pathname}${window.location.search}`;
-  return section ? `${base}#${section}` : base;
+  window.history.pushState(null, "", hash ? `${base}#${hash}` : base);
+  window.dispatchEvent(new Event(locationChangeEventName));
 }
 
 function subscribeToLocation(onStoreChange: () => void) {
@@ -75,6 +86,7 @@ export function SectionDrawers() {
     getServerLocationHash,
   );
   const openSection = sectionFromHash(hash);
+  const selectedProject = projectFromHash(hash);
 
   useEffect(() => {
     if (!openSection) {
@@ -90,8 +102,11 @@ export function SectionDrawers() {
 
   function toggleSection(section: SectionId) {
     const nextSection = openSection === section ? null : section;
-    window.history.pushState(null, "", urlForSection(nextSection));
-    window.dispatchEvent(new Event(locationChangeEventName));
+    pushHash(nextSection);
+  }
+
+  function selectProject(slug: ProjectSlug) {
+    pushHash(`projects/${slug}`);
   }
 
   return (
@@ -127,13 +142,17 @@ export function SectionDrawers() {
               hidden={!isOpen}
               id={panelId}
             >
-              <div className="section-drawer__placeholder">
-                <p className="section-drawer__eyebrow">{section.eyebrow}</p>
-                <h3 id={`${section.id}-title`}>
-                  {section.displayTitle ?? section.title}
-                </h3>
-                <p>{section.placeholder}</p>
-              </div>
+              {section.id === "projects" ? (
+                <ProjectGallery onSelect={selectProject} selectedSlug={selectedProject} />
+              ) : (
+                <div className="section-drawer__placeholder">
+                  <p className="section-drawer__eyebrow">{section.eyebrow}</p>
+                  <h3 id={`${section.id}-title`}>
+                    {section.displayTitle ?? section.title}
+                  </h3>
+                  <p>{section.placeholder}</p>
+                </div>
+              )}
             </div>
           </section>
         );
