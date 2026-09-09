@@ -1,0 +1,326 @@
+@import "tailwindcss";
+
+:root {
+  --color-paper: #f1e8d5;
+  --color-ink: #17100e;
+  --color-ocean-deep: #063e49;
+  --color-ocean-shadow: #021d26;
+  --color-foam: #fffaf0;
+  --color-sun: #f5d34f;
+  --page-gutter: clamp(1.25rem, 5.55vw, 5rem);
+  --ocean-image: linear-gradient(rgba(2, 42, 48, 0.24), rgba(1, 28, 37, 0.42)),
+    url("/assets/hero-surfers-wide.png");
+  --ocean-position: center center;
+  --ocean-size: cover;
+}
+
+* {
+  box-sizing: border-box;
+}
+
+html {
+  min-width: 320px;
+  background: var(--color-ocean-shadow);
+}
+
+body {
+  margin: 0;
+  color: var(--color-ink);
+  font-family: "Instrument Sans Variable", "Instrument Sans", sans-serif;
+}
+
+a {
+  color: inherit;
+  text-decoration: none;
+}
+
+.hero {
+  position: relative;
+  isolation: isolate;
+  min-height: 100svh;
+  overflow: hidden;
+  background: var(--color-ocean-deep);
+}
+
+.hero__paper {
+  position: absolute;
+  z-index: -1;
+  inset: 0 0 48%;
+  opacity: 1;
+  background-color: var(--color-paper);
+  background-image: url("/assets/cream-risograph-uniform.png");
+  background-position: center;
+  background-size: cover;
+}
+
+.hero__ocean {
+  background-color: var(--color-ocean-deep);
+  background-image: var(--ocean-image);
+  background-position: var(--ocean-position);
+  background-size: var(--ocean-size);
+  background-attachment: fixed;
+  background-blend-mode: multiply, normal;
+}
+
+.hero__ocean {
+  position: absolute;
+  z-index: -2;
+  inset: 0;
+}
+
+.hero__ocean::after {
+  position: absolute;
+  inset: 52% 0 0;
+  content: "";
+  background: linear-gradient(180deg, transparent, rgba(1, 18, 25, 0.24) 72%, rgba(1, 14, 20, 0.48));
+}
+
+.site-header {
+  position: absolute;
+  z-index: 2;
+  top: clamp(1.4rem, 5vh, 3.1rem);
+  right: var(--page-gutter);
+  left: var(--page-gutter);
+  display: flex;
+  justify-content: flex-end;
+}
+
+.site-nav {
+  display: flex;
+  gap: clamp(1.7rem, 4vw, 4.2rem);
+  font-family: "Instrument Sans Variable", "Instrument Sans", sans-serif;
+  font-size: clamp(0.9rem, 1.15vw, 1.05rem);
+}
+
+.site-nav a,
+.profile-links a {
+  position: relative;
+}
+
+.site-nav a::after,
+.profile-links a::after {
+  position: absolute;
+  right: 0;
+  bottom: -0.3rem;
+  left: 0;
+  height: 1px;
+  content: "";
+  background: currentColor;
+  transform: scaleX(0);
+  transform-origin: right;
+  transition: transform 180ms ease;
+}
+
+.site-nav a:hover::after,
+.site-nav a:focus-visible::after,
+.profile-links a:hover::after,
+.profile-links a:focus-visible::after {
+  transform: scaleX(1);
+  transform-origin: left;
+}
+
+.mobile-menu {
+  display: none;
+}
+
+.hero__name {
+  position: absolute;
+  z-index: 1;
+  inset: 0;
+  margin: 0;
+  font-family: "League Gothic", Impact, sans-serif;
+  font-weight: 400;
+  text-transform: uppercase;
+}
+
+.hero__name-line {
+  position: absolute;
+  display: block;
+  color: var(--color-ocean-deep);
+  line-height: 0.74;
+}
+
+@supports ((background-clip: text) or (-webkit-background-clip: text)) {
+  .hero[data-text-clip="supported"] .hero__name-line {
+    color: transparent;
+    background-color: var(--color-ocean-deep);
+    background-image: var(--ocean-image);
+    background-position: var(--ocean-position);
+    background-size: var(--ocean-size);
+    background-attachment: fixed;
+    background-blend-mode: multiply, normal;
+    background-clip: text;
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+  }
+}
+
+.hero__name-line--first {
+  top: 10%;
+  left: var(--page-gutter);
+  font-size: clamp(5.25rem, 10.5vw, 9.75rem);
+  letter-spacing: 0.01em;
+}
+
+@media (max-height: 760px) and (min-width: 721px) {
+  .hero__name-line--first {
+    top: 4%;
+    font-size: clamp(4.5rem, 12vh, 5.5rem);
+  }
+}
+
+.hero__name-line--last {
+  right: var(--page-gutter);
+  bottom: 47.4%;
+  left: var(--page-gutter);
+  font-size: clamp(10.5rem, 24vw, 22rem);
+  letter-spacing: 0.008em;
+  white-space: nowrap;
+}
+
+.hero__introduction {
+  position: absolute;
+  z-index: 1;
+  bottom: clamp(2rem, 5.5vh, 4rem);
+  left: var(--page-gutter);
+  color: var(--color-foam);
+}
+
+.hero__role {
+  display: flex;
+  gap: 0.75rem;
+  align-items: center;
+  margin: 0 0 clamp(1.15rem, 2.5vh, 1.8rem);
+  color: var(--color-sun);
+  font-size: clamp(0.78rem, 1.15vw, 1.05rem);
+  font-weight: 750;
+  letter-spacing: 0.15em;
+  text-transform: uppercase;
+}
+
+.hero__role span {
+  font-size: 1.8em;
+  line-height: 1;
+}
+
+.hero__statement {
+  margin: 0;
+  font-size: clamp(2.45rem, 5vw, 4.7rem);
+  font-weight: 430;
+  letter-spacing: -0.055em;
+  line-height: 0.96;
+  text-shadow: 0 1px 18px rgba(1, 16, 23, 0.22);
+}
+
+.profile-links {
+  position: absolute;
+  z-index: 1;
+  right: var(--page-gutter);
+  bottom: clamp(2rem, 5.5vh, 4rem);
+  display: grid;
+  gap: clamp(0.7rem, 1.6vh, 1rem);
+  justify-items: end;
+  color: var(--color-foam);
+  font-size: clamp(1rem, 1.45vw, 1.3rem);
+}
+
+.profile-links a {
+  display: flex;
+  gap: 0.8rem;
+  align-items: center;
+}
+
+:focus-visible {
+  outline: 3px solid var(--color-sun);
+  outline-offset: 0.35rem;
+}
+
+@media (max-width: 900px) {
+  :root {
+    --ocean-position: 77% center;
+  }
+}
+
+@media (max-width: 720px) {
+  :root {
+    --page-gutter: 1.25rem;
+  }
+
+  .hero__paper {
+    bottom: 52%;
+  }
+
+  .site-nav {
+    display: none;
+  }
+
+  .mobile-menu {
+    display: block;
+    width: calc(100vw - 2.5rem);
+    font-size: 0.95rem;
+  }
+
+  .mobile-menu summary {
+    display: block;
+    width: max-content;
+    margin-left: auto;
+    cursor: pointer;
+    list-style: none;
+  }
+
+  .mobile-menu nav {
+    display: grid;
+    gap: 0.7rem;
+    padding: 1rem;
+    margin-top: 0.7rem;
+    background: color-mix(in srgb, var(--color-paper) 95%, transparent);
+    border: 1px solid color-mix(in srgb, var(--color-ocean-deep) 28%, transparent);
+  }
+
+  .hero__name-line--first {
+    top: 18%;
+    font-size: clamp(4.8rem, 25vw, 6.2rem);
+  }
+
+  .hero__name-line--last {
+    bottom: 51.4%;
+    font-size: clamp(6.7rem, 29vw, 8.1rem);
+    letter-spacing: -0.01em;
+    transform: none;
+  }
+
+  .hero__ocean::after {
+    top: 48%;
+  }
+
+  .hero__introduction {
+    right: var(--page-gutter);
+    bottom: 7.2rem;
+  }
+
+  .hero__statement {
+    font-size: clamp(2.2rem, 11.5vw, 3rem);
+  }
+
+  .profile-links {
+    right: auto;
+    bottom: 1.4rem;
+    left: var(--page-gutter);
+    display: flex;
+    gap: 1.15rem;
+    font-size: 0.9rem;
+  }
+
+  .profile-links a {
+    gap: 0.3rem;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  *,
+  *::before,
+  *::after {
+    scroll-behavior: auto !important;
+    transition-duration: 0.01ms !important;
+  }
+}
