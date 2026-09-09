@@ -126,7 +126,13 @@ a {
 .hero__name {
   position: absolute;
   z-index: 1;
-  inset: 0;
+  right: var(--page-gutter);
+  bottom: 47.4%;
+  left: var(--page-gutter);
+  display: flex;
+  flex-direction: column;
+  gap: clamp(0.35rem, 1.2vh, 0.8rem);
+  align-items: flex-start;
   margin: 0;
   font-family: "League Gothic", Impact, sans-serif;
   font-weight: 400;
@@ -134,7 +140,6 @@ a {
 }
 
 .hero__name-line {
-  position: absolute;
   display: block;
   color: var(--color-ocean-deep);
   line-height: 0.74;
@@ -156,23 +161,17 @@ a {
 }
 
 .hero__name-line--first {
-  top: 10%;
-  left: var(--page-gutter);
   font-size: clamp(5.25rem, 10.5vw, 9.75rem);
   letter-spacing: 0.01em;
 }
 
 @media (max-height: 760px) and (min-width: 721px) {
   .hero__name-line--first {
-    top: 4%;
     font-size: clamp(4.5rem, 12vh, 5.5rem);
   }
 }
 
 .hero__name-line--last {
-  right: var(--page-gutter);
-  bottom: 47.4%;
-  left: var(--page-gutter);
   font-size: clamp(10.5rem, 24vw, 22rem);
   letter-spacing: 0.008em;
   white-space: nowrap;
@@ -277,13 +276,15 @@ a {
     border: 1px solid color-mix(in srgb, var(--color-ocean-deep) 28%, transparent);
   }
 
+  .hero__name {
+    bottom: 51.4%;
+  }
+
   .hero__name-line--first {
-    top: 18%;
     font-size: clamp(4.8rem, 25vw, 6.2rem);
   }
 
   .hero__name-line--last {
-    bottom: 51.4%;
     font-size: clamp(6.7rem, 29vw, 8.1rem);
     letter-spacing: -0.01em;
     transform: none;

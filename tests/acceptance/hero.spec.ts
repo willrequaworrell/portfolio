@@ -4,6 +4,7 @@ const viewports = [
   { name: "desktop", width: 1440, height: 900 },
   { name: "short-laptop", width: 1366, height: 700 },
   { name: "tablet", width: 834, height: 1112 },
+  { name: "mid-mobile", width: 530, height: 1104 },
   { name: "mobile", width: 390, height: 844 },
 ] as const;
 
@@ -81,6 +82,39 @@ for (const viewport of viewports) {
     );
   });
 }
+
+for (const width of [530, 640, 720]) {
+  test(`keeps both name lines grouped at ${width}px`, async ({ page }) => {
+    await page.setViewportSize({ width, height: 1104 });
+    await revealHero(page);
+
+    const [firstName, lastName] = await page
+      .locator(".hero__name-line")
+      .evaluateAll((lines) =>
+        lines.map((line) => {
+          const box = line.getBoundingClientRect();
+          return { top: box.top, bottom: box.bottom };
+        }),
+      );
+
+    expect(lastName.top - firstName.bottom).toBeLessThanOrEqual(32);
+  });
+}
+
+test("closes the mobile menu after choosing a section", async ({ page }) => {
+  await page.setViewportSize({ width: 530, height: 1104 });
+  await revealHero(page);
+
+  const menu = page.locator(".mobile-menu");
+  await page.getByText("Menu", { exact: true }).click();
+  await expect(menu).toHaveAttribute("open", "");
+  await page
+    .getByRole("navigation", { name: "Mobile navigation" })
+    .getByRole("link", { name: "Projects" })
+    .click();
+
+  await expect(menu).not.toHaveAttribute("open", "");
+});
 
 test("loads the self-hosted display and interface typefaces", async ({ page }) => {
   await revealHero(page);

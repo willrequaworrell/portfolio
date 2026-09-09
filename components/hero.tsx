@@ -1,16 +1,16 @@
 "use client";
 
 import { motion } from "motion/react";
-import { useSyncExternalStore } from "react";
+import { useRef, useSyncExternalStore } from "react";
 import { identity, navigation, profileLinks } from "@/content/portfolio";
 
 function Arrow() {
   return <span aria-hidden="true">↗</span>;
 }
 
-function NavigationLinks() {
+function NavigationLinks({ onNavigate }: { onNavigate?: () => void }) {
   return navigation.map((item) => (
-    <a key={item.href} href={item.href}>
+    <a key={item.href} href={item.href} onClick={onNavigate}>
       {item.label}
     </a>
   ));
@@ -25,6 +25,7 @@ const getTextClipSnapshot = () =>
 const getServerTextClipSnapshot = () => false;
 
 export function Hero() {
+  const mobileMenu = useRef<HTMLDetailsElement>(null);
   const hydrated = useSyncExternalStore(
     subscribeToStaticCapability,
     getHydratedSnapshot,
@@ -52,10 +53,16 @@ export function Hero() {
           <NavigationLinks />
         </nav>
 
-        <details className="mobile-menu">
+        <details className="mobile-menu" ref={mobileMenu}>
           <summary>Menu</summary>
           <nav aria-label="Mobile navigation">
-            <NavigationLinks />
+            <NavigationLinks
+              onNavigate={() => {
+                if (mobileMenu.current) {
+                  mobileMenu.current.open = false;
+                }
+              }}
+            />
           </nav>
         </details>
       </header>
