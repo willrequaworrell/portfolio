@@ -480,6 +480,295 @@ a {
   background: #143e35;
 }
 
+.section-drawer--experience .section-drawer__trigger {
+  color: var(--color-ink);
+  background: var(--color-paper) url("/assets/cream-risograph-uniform.png") center / cover;
+}
+
+.section-drawer--experience .section-drawer__symbol {
+  color: #8c7414;
+}
+
+.section-drawer--experience .section-drawer__panel {
+  display: flex;
+  min-height: 0;
+  padding: 0;
+}
+
+.section-drawer--experience .section-drawer__panel[hidden] {
+  display: none;
+}
+
+.experience-timeline {
+  display: grid;
+  width: 100%;
+  min-height: 0;
+  grid-template-columns: minmax(22rem, 38%) minmax(0, 1fr);
+  background: var(--color-ink);
+}
+
+.experience-chronology {
+  position: relative;
+  display: grid;
+  align-content: center;
+  gap: clamp(1.1rem, 2.2vh, 2rem);
+  padding: clamp(2.5rem, 5vh, 4.5rem) clamp(2rem, 4vw, 4.5rem);
+  margin: 0;
+  list-style: none;
+}
+
+.experience-chronology::before {
+  position: absolute;
+  top: clamp(2.5rem, 5vh, 4.5rem);
+  bottom: clamp(2.5rem, 5vh, 4.5rem);
+  left: clamp(2rem, 4vw, 4.5rem);
+  width: 2px;
+  content: "";
+  background: var(--color-sun);
+}
+
+.experience-employer {
+  position: relative;
+  padding-left: clamp(1.6rem, 2.5vw, 2.5rem);
+}
+
+.experience-employer::before {
+  position: absolute;
+  top: 0.35rem;
+  left: -0.34rem;
+  width: 0.8rem;
+  height: 0.8rem;
+  content: "";
+  background: var(--color-ink);
+  border: 2px solid var(--color-sun);
+}
+
+.experience-employer:has(button[aria-pressed="true"])::before {
+  background: var(--color-sun);
+}
+
+.experience-employer__heading {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.5rem;
+  align-items: center;
+}
+
+.experience-employer__heading strong {
+  font-family: "League Gothic", Impact, sans-serif;
+  font-size: clamp(1.8rem, 2.4vw, 2.7rem);
+  font-weight: 400;
+  letter-spacing: 0.02em;
+  line-height: 0.9;
+  text-transform: uppercase;
+}
+
+.experience-employer__heading span {
+  padding: 0.22rem 0.42rem;
+  color: var(--color-ink);
+  font-size: 0.6rem;
+  font-weight: 800;
+  letter-spacing: 0.1em;
+  line-height: 1;
+  text-transform: uppercase;
+  background: var(--color-sun);
+}
+
+.experience-employer__meta,
+.experience-employer__scope {
+  margin: 0.45rem 0 0;
+}
+
+.experience-employer__meta {
+  color: var(--color-sun);
+  font-size: 0.7rem;
+  font-weight: 700;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+}
+
+.experience-employer__scope {
+  max-width: 29rem;
+  color: rgba(255, 250, 240, 0.68);
+  font-size: clamp(0.78rem, 0.88vw, 0.9rem);
+  line-height: 1.35;
+}
+
+.experience-progression {
+  display: grid;
+  gap: 0.35rem;
+  margin-top: 0.65rem;
+}
+
+.experience-progression__branch {
+  position: relative;
+  padding: 0.45rem 0 0.45rem 1.25rem;
+  margin-left: -1.25rem;
+}
+
+.experience-progression__branch::before {
+  position: absolute;
+  inset: 0.2rem auto 0.2rem 0;
+  width: 0.9rem;
+  content: "";
+  border: 1px solid var(--color-sun);
+  border-right: 0;
+}
+
+.experience-role button {
+  display: grid;
+  width: 100%;
+  grid-template-columns: minmax(0, 1fr) auto;
+  gap: 0.75rem;
+  align-items: baseline;
+  padding: 0.32rem 0;
+  color: rgba(255, 250, 240, 0.78);
+  font: inherit;
+  font-size: 0.82rem;
+  text-align: left;
+  cursor: pointer;
+  background: transparent;
+  border: 0;
+}
+
+.experience-role button[aria-pressed="true"] {
+  color: var(--color-foam);
+}
+
+.experience-role button[aria-pressed="true"] span::before {
+  margin-right: 0.45rem;
+  color: var(--color-sun);
+  content: "↳";
+}
+
+.experience-role small {
+  color: rgba(255, 250, 240, 0.48);
+  font-size: 0.67rem;
+  white-space: nowrap;
+}
+
+.experience-detail--desktop {
+  display: grid;
+  min-width: 0;
+  border-left: 1px solid rgba(255, 250, 240, 0.18);
+  background: #143e35;
+}
+
+.experience-detail--mobile {
+  display: none;
+}
+
+.experience-detail {
+  display: grid;
+  align-content: center;
+  padding: clamp(2.5rem, 6vw, 6.5rem);
+}
+
+.experience-detail__eyebrow {
+  margin: 0;
+  color: var(--color-sun);
+  font-size: 0.7rem;
+  font-weight: 750;
+  letter-spacing: 0.15em;
+  text-transform: uppercase;
+}
+
+.experience-detail h3 {
+  margin: 0.7rem 0 0;
+  font-family: "League Gothic", Impact, sans-serif;
+  font-size: clamp(4.5rem, 8vw, 8.5rem);
+  font-weight: 400;
+  line-height: 0.8;
+  text-transform: uppercase;
+}
+
+.experience-detail__role {
+  margin: 0.85rem 0 0;
+  font-size: clamp(1.35rem, 2vw, 2rem);
+  font-weight: 550;
+  line-height: 1.05;
+}
+
+.experience-detail__meta {
+  margin: 0.5rem 0 0;
+  color: var(--color-sun);
+  font-size: 0.72rem;
+  font-weight: 700;
+  letter-spacing: 0.09em;
+  text-transform: uppercase;
+}
+
+.experience-detail__summary {
+  max-width: 43rem;
+  margin: clamp(1rem, 2vh, 1.6rem) 0 0;
+  font-size: clamp(1rem, 1.35vw, 1.2rem);
+  line-height: 1.4;
+}
+
+.experience-detail__contributions {
+  display: grid;
+  max-width: 43rem;
+  gap: 0.55rem;
+  padding: 0;
+  margin: clamp(1rem, 2vh, 1.6rem) 0 0;
+  font-size: clamp(0.82rem, 1vw, 0.95rem);
+  line-height: 1.35;
+  list-style: none;
+}
+
+.experience-detail__contributions li {
+  display: grid;
+  grid-template-columns: auto 1fr;
+  gap: 0.7rem;
+}
+
+.experience-detail__contributions li::before {
+  color: var(--color-sun);
+  content: "↳";
+}
+
+.experience-detail__impacts {
+  display: grid;
+  max-width: 43rem;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  padding: 0;
+  margin: clamp(1.1rem, 2vh, 1.7rem) 0 0;
+  border-block: 1px solid rgba(255, 250, 240, 0.2);
+}
+
+.experience-detail__impacts div {
+  padding: 0.8rem 0.75rem 0.8rem 0;
+}
+
+.experience-detail__impacts div + div {
+  padding-left: 0.75rem;
+  border-left: 1px solid rgba(255, 250, 240, 0.2);
+}
+
+.experience-detail__impacts dt {
+  color: rgba(255, 250, 240, 0.58);
+  font-size: 0.62rem;
+  font-weight: 700;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+}
+
+.experience-detail__impacts dd {
+  margin: 0.3rem 0 0;
+  color: var(--color-sun);
+  font-size: clamp(0.82rem, 1vw, 1rem);
+  font-weight: 650;
+}
+
+.experience-detail__link {
+  width: max-content;
+  padding-bottom: 0.2rem;
+  margin-top: clamp(1.1rem, 2vh, 1.6rem);
+  font-size: 0.85rem;
+  font-weight: 700;
+  border-bottom: 2px solid var(--color-sun);
+}
+
 .section-drawer--contact {
   color: var(--color-foam);
   background: var(--color-ink);
@@ -717,6 +1006,81 @@ a {
 
   .section-drawer--projects .section-drawer__panel {
     padding: 0;
+  }
+
+  .section-drawer--experience .section-drawer__panel {
+    display: block;
+    overflow: visible;
+  }
+
+  .experience-timeline {
+    display: block;
+  }
+
+  .experience-chronology {
+    gap: 2rem;
+    padding: 3rem var(--page-gutter) 4rem;
+  }
+
+  .experience-chronology::before {
+    top: 3rem;
+    bottom: 4rem;
+    left: var(--page-gutter);
+  }
+
+  .experience-employer {
+    padding-left: 1.65rem;
+  }
+
+  .experience-employer__heading strong {
+    font-size: clamp(2rem, 10vw, 2.7rem);
+  }
+
+  .experience-employer__scope {
+    font-size: 0.86rem;
+  }
+
+  .experience-role button {
+    grid-template-columns: minmax(0, 1fr);
+    gap: 0.15rem;
+    padding: 0.5rem 0;
+  }
+
+  .experience-role small {
+    white-space: normal;
+  }
+
+  .experience-detail--desktop {
+    display: none;
+  }
+
+  .experience-detail--mobile {
+    display: grid;
+    margin: 0.75rem 0 0 -1.65rem;
+    background: #143e35;
+    border-block: 1px solid rgba(255, 250, 240, 0.18);
+  }
+
+  .experience-detail--mobile .experience-detail {
+    padding: 1.75rem 1.25rem 2rem;
+  }
+
+  .experience-detail h3 {
+    font-size: clamp(4rem, 21vw, 5.4rem);
+  }
+
+  .experience-detail__role {
+    font-size: 1.35rem;
+  }
+
+  .experience-detail__impacts {
+    grid-template-columns: 1fr;
+  }
+
+  .experience-detail__impacts div + div {
+    padding-left: 0;
+    border-top: 1px solid rgba(255, 250, 240, 0.2);
+    border-left: 0;
   }
 
   .project-gallery {

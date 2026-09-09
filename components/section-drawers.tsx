@@ -1,6 +1,7 @@
 "use client";
 
 import { useEffect, useSyncExternalStore } from "react";
+import { ExperienceTimeline } from "@/components/experience-timeline";
 import { ProjectGallery } from "@/components/project-gallery";
 import { defaultProjectSlug, projects, type ProjectSlug } from "@/content/portfolio";
 
@@ -144,6 +145,8 @@ export function SectionDrawers() {
             >
               {section.id === "projects" ? (
                 <ProjectGallery onSelect={selectProject} selectedSlug={selectedProject} />
+              ) : section.id === "experience" ? (
+                <ExperienceTimeline />
               ) : (
                 <div className="section-drawer__placeholder">
                   <p className="section-drawer__eyebrow">{section.eyebrow}</p>
