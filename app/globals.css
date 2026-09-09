@@ -229,15 +229,13 @@ a {
   background: var(--color-ink);
 }
 
-.section-drawer--projects[data-open="true"]::before {
-  position: absolute;
-  z-index: 1;
-  top: 0;
-  right: 0;
-  left: 0;
-  height: 3px;
-  content: "";
-  background: var(--color-sun);
+.section-drawer--projects .section-drawer__trigger {
+  color: var(--color-foam);
+  background: var(--color-ocean-shadow);
+}
+
+.section-drawer--projects .section-drawer__symbol {
+  color: var(--color-sun);
 }
 
 .section-drawer--projects .section-drawer__panel {
@@ -251,9 +249,8 @@ a {
 }
 
 .project-gallery {
-  display: grid;
+  position: relative;
   flex: 1;
-  grid-template-columns: minmax(0, 1fr) clamp(9rem, 13vw, 22rem);
   min-height: 36rem;
 }
 
@@ -261,6 +258,7 @@ a {
   position: relative;
   min-width: 0;
   min-height: 0;
+  height: 100%;
   overflow: hidden;
   background: #31584f;
 }
@@ -276,8 +274,9 @@ a {
   display: flex;
   width: min(64%, 48rem);
   flex-direction: column;
-  justify-content: flex-end;
-  padding: clamp(2rem, 4vw, 4.5rem) clamp(2rem, 5vw, 5.5rem);
+  justify-content: center;
+  padding: clamp(3rem, 7vh, 6rem) clamp(2rem, 5vw, 5.5rem)
+    clamp(3rem, 7vh, 6rem) clamp(7.5rem, 10vw, 10rem);
   color: var(--color-foam);
   background-image: linear-gradient(
     90deg,
@@ -307,7 +306,7 @@ a {
 .project-presentation__heading h3 {
   margin: 0;
   font-family: "League Gothic", Impact, sans-serif;
-  font-size: clamp(5.4rem, 11vw, 10.5rem);
+  font-size: clamp(4.75rem, 7vw, 7.5rem);
   font-weight: 400;
   letter-spacing: 0.005em;
   line-height: 0.78;
@@ -378,6 +377,51 @@ a {
   margin-top: clamp(1.15rem, 2.5vh, 2rem);
   font-weight: 700;
   border-bottom: 2px solid var(--color-sun);
+}
+
+.project-arrows {
+  position: absolute;
+  z-index: 2;
+  inset: 0;
+  pointer-events: none;
+}
+
+.project-arrow {
+  position: absolute;
+  top: 50%;
+  display: grid;
+  width: clamp(5.25rem, 7vw, 6.5rem);
+  aspect-ratio: 1;
+  padding: 0;
+  place-items: center;
+  color: var(--color-foam);
+  font: inherit;
+  font-size: clamp(2.5rem, 4vw, 4rem);
+  line-height: 1;
+  cursor: pointer;
+  border: 0;
+  pointer-events: auto;
+  transform: translateY(-50%);
+}
+
+.project-arrow--previous {
+  left: 0;
+  background: rgba(23, 16, 14, 0.9);
+}
+
+.project-arrow--next {
+  right: 0;
+  color: var(--color-ink);
+  background: var(--color-sun);
+}
+
+.project-arrow:hover span,
+.project-arrow:focus-visible span {
+  transform: scale(1.12);
+}
+
+.project-arrow span {
+  transition: transform 160ms ease;
 }
 
 .project-selector {
@@ -548,8 +592,13 @@ a {
   }
 
   .project-gallery {
+    display: grid;
     grid-template-columns: minmax(0, 1fr);
     grid-template-rows: auto minmax(0, 1fr);
+  }
+
+  .project-presentation {
+    height: auto;
   }
 
   .project-selector {

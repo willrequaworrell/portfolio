@@ -25,6 +25,7 @@ const getServerNarrowSelectorSnapshot = () => false;
 export function ProjectGallery({ selectedSlug, onSelect }: ProjectGalleryProps) {
   const selectedProject =
     projects.find(({ slug }) => slug === selectedSlug) ?? projects[0];
+  const selectedIndex = projects.findIndex(({ slug }) => slug === selectedProject.slug);
   const tabRefs = useRef<Array<HTMLButtonElement | null>>([]);
   const isNarrow = useSyncExternalStore(
     subscribeToNarrowSelector,
@@ -36,6 +37,10 @@ export function ProjectGallery({ selectedSlug, onSelect }: ProjectGalleryProps) 
     const project = projects[(index + projects.length) % projects.length];
     onSelect(project.slug);
     tabRefs.current[index]?.focus();
+  }
+
+  function selectByOffset(offset: number) {
+    selectByIndex((selectedIndex + offset + projects.length) % projects.length);
   }
 
   function handleTabKeyDown(event: KeyboardEvent<HTMLButtonElement>, index: number) {
@@ -57,7 +62,7 @@ export function ProjectGallery({ selectedSlug, onSelect }: ProjectGalleryProps) 
   return (
     <div className="project-gallery">
       <article
-        aria-labelledby={`project-tab-${selectedProject.slug}`}
+        aria-labelledby="projects-title"
         className="project-presentation"
         data-project={selectedProject.slug}
         data-testid="selected-project"
@@ -102,35 +107,56 @@ export function ProjectGallery({ selectedSlug, onSelect }: ProjectGalleryProps) 
         </div>
       </article>
 
-      <div
-        aria-label="Select a project"
-        aria-orientation={isNarrow ? "horizontal" : "vertical"}
-        className="project-selector"
-        role="tablist"
-      >
-        {projects.map((project, index) => {
-          const isSelected = project.slug === selectedProject.slug;
-          return (
-            <button
-              aria-controls="selected-project-panel"
-              aria-selected={isSelected}
-              className="project-selector__tab"
-              id={`project-tab-${project.slug}`}
-              key={project.slug}
-              onClick={() => onSelect(project.slug)}
-              onKeyDown={(event) => handleTabKeyDown(event, index)}
-              ref={(element) => {
-                tabRefs.current[index] = element;
-              }}
-              role="tab"
-              tabIndex={isSelected ? 0 : -1}
-              type="button"
-            >
-              {project.name}
-            </button>
-          );
-        })}
-      </div>
+      {isNarrow ? (
+        <div
+          aria-label="Select a project"
+          aria-orientation="horizontal"
+          className="project-selector"
+          role="tablist"
+        >
+          {projects.map((project, index) => {
+            const isSelected = project.slug === selectedProject.slug;
+            return (
+              <button
+                aria-controls="selected-project-panel"
+                aria-selected={isSelected}
+                className="project-selector__tab"
+                id={`project-tab-${project.slug}`}
+                key={project.slug}
+                onClick={() => onSelect(project.slug)}
+                onKeyDown={(event) => handleTabKeyDown(event, index)}
+                ref={(element) => {
+                  tabRefs.current[index] = element;
+                }}
+                role="tab"
+                tabIndex={isSelected ? 0 : -1}
+                type="button"
+              >
+                {project.name}
+              </button>
+            );
+          })}
+        </div>
+      ) : (
+        <nav aria-label="Browse projects" className="project-arrows">
+          <button
+            aria-label={`Previous project: ${projects[(selectedIndex - 1 + projects.length) % projects.length].name}`}
+            className="project-arrow project-arrow--previous"
+            onClick={() => selectByOffset(-1)}
+            type="button"
+          >
+            <span aria-hidden="true">←</span>
+          </button>
+          <button
+            aria-label={`Next project: ${projects[(selectedIndex + 1) % projects.length].name}`}
+            className="project-arrow project-arrow--next"
+            onClick={() => selectByOffset(1)}
+            type="button"
+          >
+            <span aria-hidden="true">→</span>
+          </button>
+        </nav>
+      )}
     </div>
   );
 }

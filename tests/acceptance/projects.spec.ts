@@ -14,15 +14,14 @@ function projectSelector(page: Page) {
   return page.getByRole("tablist", { name: "Select a project" });
 }
 
+function projectArrows(page: Page) {
+  return page.getByRole("navigation", { name: "Browse projects" });
+}
+
 test("presents FinderlyFix first and updates one selected project in place", async ({
   page,
 }) => {
   await openProjects(page);
-
-  const selector = projectSelector(page);
-  const tabs = selector.getByRole("tab");
-  await expect(tabs).toHaveText(["FinderlyFix", "HaaS", "ER-404"]);
-  await expect(tabs.first()).toHaveAttribute("aria-selected", "true");
 
   const presentation = page.getByTestId("selected-project");
   await expect(presentation.getByRole("heading", { name: "FinderlyFix" })).toBeVisible();
@@ -37,7 +36,9 @@ test("presents FinderlyFix first and updates one selected project in place", asy
     "https://www.finderlyfix.com/",
   );
 
-  await tabs.nth(1).click();
+  const arrows = projectArrows(page);
+  await expect(arrows.getByRole("button")).toHaveCount(2);
+  await arrows.getByRole("button", { name: "Next project: HaaS" }).click();
   await expect(page).toHaveURL(/#projects\/haas$/);
   await expect(presentation.getByRole("heading", { name: "HaaS" })).toBeVisible();
   await expect(presentation.getByText("Product Engineer · Solo build")).toBeVisible();
@@ -50,7 +51,7 @@ test("presents FinderlyFix first and updates one selected project in place", asy
     "https://tryhaas.vercel.app",
   );
 
-  await tabs.nth(2).click();
+  await arrows.getByRole("button", { name: "Next project: ER-404" }).click();
   await expect(page).toHaveURL(/#projects\/er-404$/);
   await expect(presentation.getByRole("heading", { name: "ER-404" })).toBeVisible();
   await expect(presentation.getByText("Creative Developer · Solo build")).toBeVisible();
@@ -73,7 +74,9 @@ test("restores nested project hashes and project history", async ({ page }) => {
   const presentation = page.getByTestId("selected-project");
   await expect(presentation.getByRole("heading", { name: "ER-404" })).toBeVisible();
 
-  await projectSelector(page).getByRole("tab", { name: "FinderlyFix" }).click();
+  await projectArrows(page)
+    .getByRole("button", { name: "Next project: FinderlyFix" })
+    .click();
   await expect(page).toHaveURL(/#projects\/finderly$/);
   await expect(presentation.getByRole("heading", { name: "FinderlyFix" })).toBeVisible();
 
@@ -92,41 +95,34 @@ for (const project of [
     await expect(
       page.getByTestId("selected-project").getByRole("heading", { name: project.name }),
     ).toBeVisible();
-    await expect(
-      projectSelector(page).getByRole("tab", { name: project.name }),
-    ).toHaveAttribute("aria-selected", "true");
+    await expect(page.getByRole("navigation", { name: "Browse projects" })).toBeVisible();
   });
 }
 
-test("uses one keyboard-operable vertical selector on desktop", async ({ page }) => {
+test("uses one keyboard-operable edge selector on desktop", async ({ page }) => {
   await page.setViewportSize({ width: 1920, height: 1080 });
   await openProjects(page);
 
-  const selector = projectSelector(page);
-  await expect(selector).toHaveAttribute("aria-orientation", "vertical");
-  await expect(page.getByRole("tablist", { name: "Select a project" })).toHaveCount(1);
+  const selector = projectArrows(page);
+  await expect(selector).toBeVisible();
+  await expect(page.getByRole("tablist", { name: "Select a project" })).toHaveCount(0);
 
-  const finderly = selector.getByRole("tab", { name: "FinderlyFix" });
-  const haas = selector.getByRole("tab", { name: "HaaS" });
-  await finderly.focus();
-  await page.keyboard.press("ArrowDown");
-  await expect(haas).toBeFocused();
-  await expect(haas).toHaveAttribute("aria-selected", "true");
+  const next = selector.getByRole("button", { name: "Next project: HaaS" });
+  await next.focus();
+  await page.keyboard.press("Enter");
+  await expect(page.getByRole("button", { name: "Next project: ER-404" })).toBeVisible();
   await expect(page).toHaveURL(/#projects\/haas$/);
 
-  const positions = await selector.getByRole("tab").evaluateAll((tabs) =>
-    tabs.map((tab) => {
-      const rect = tab.getBoundingClientRect();
-      return { left: rect.left, top: rect.top };
-    }),
-  );
-  expect(new Set(positions.map(({ left }) => Math.round(left))).size).toBe(1);
-  expect(new Set(positions.map(({ top }) => Math.round(top))).size).toBe(3);
-  const selectorRatio = await selector.evaluate(
-    (element) => element.getBoundingClientRect().width / window.innerWidth,
-  );
-  expect(selectorRatio).toBeGreaterThanOrEqual(0.12);
-  expect(selectorRatio).toBeLessThanOrEqual(0.14);
+  const edges = await Promise.all([
+    page
+      .getByRole("button", { name: "Previous project: FinderlyFix" })
+      .evaluate((button) => button.getBoundingClientRect().left),
+    page
+      .getByRole("button", { name: "Next project: ER-404" })
+      .evaluate((button) => button.getBoundingClientRect().right),
+  ]);
+  expect(edges[0]).toBeLessThan(20);
+  expect(1920 - edges[1]).toBeLessThan(20);
 });
 
 test("uses one compact horizontal selector on narrow screens", async ({ page }) => {
