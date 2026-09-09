@@ -123,6 +123,133 @@ a {
   display: none;
 }
 
+.section-drawers {
+  background: var(--color-ink);
+}
+
+.section-drawer {
+  display: flex;
+  flex-direction: column;
+  scroll-margin-top: 0;
+}
+
+.section-drawer[data-open="true"] {
+  min-height: 100svh;
+}
+
+.section-drawer__heading {
+  margin: 0;
+}
+
+.section-drawer__trigger {
+  display: flex;
+  width: 100%;
+  min-height: clamp(6rem, 11vh, 8rem);
+  align-items: center;
+  justify-content: space-between;
+  padding: 0 var(--page-gutter);
+  color: inherit;
+  font: inherit;
+  font-family: "League Gothic", Impact, sans-serif;
+  font-size: clamp(3.25rem, 6vw, 5.75rem);
+  font-weight: 400;
+  letter-spacing: 0.01em;
+  line-height: 0.9;
+  text-align: left;
+  text-transform: uppercase;
+  cursor: pointer;
+  background: transparent;
+  border: 0;
+}
+
+.section-drawer__symbol {
+  font-family: "Instrument Sans Variable", "Instrument Sans", sans-serif;
+  font-size: 0.62em;
+  font-weight: 350;
+}
+
+.section-drawer__panel {
+  flex: 1;
+  padding: clamp(2rem, 5vw, 5rem) var(--page-gutter);
+}
+
+.section-drawer__panel[hidden] {
+  display: none;
+}
+
+.section-drawer__placeholder {
+  display: grid;
+  min-height: 100%;
+  align-content: center;
+  max-width: 52rem;
+}
+
+.section-drawer__eyebrow {
+  margin: 0 0 1rem;
+  color: var(--color-sun);
+  font-size: 0.8rem;
+  font-weight: 750;
+  letter-spacing: 0.15em;
+  text-transform: uppercase;
+}
+
+.section-drawer__placeholder h3 {
+  margin: 0;
+  font-family: "League Gothic", Impact, sans-serif;
+  font-size: clamp(5rem, 15vw, 12rem);
+  font-weight: 400;
+  line-height: 0.82;
+  text-transform: uppercase;
+}
+
+.section-drawer__placeholder > p:last-child {
+  max-width: 38rem;
+  margin: 2rem 0 0;
+  font-size: clamp(1.2rem, 2.4vw, 2rem);
+  line-height: 1.25;
+}
+
+.section-drawer--about {
+  color: var(--color-foam);
+  background: #143e35;
+}
+
+.section-drawer--about .section-drawer__trigger {
+  color: var(--color-ink);
+  background: var(--color-paper) url("/assets/cream-risograph-uniform.png") center / cover;
+}
+
+.section-drawer--about .section-drawer__panel {
+  background: linear-gradient(90deg, #143e35 0 84%, var(--color-sun) 84% 100%);
+}
+
+.section-drawer--projects {
+  position: relative;
+  color: var(--color-foam);
+  background: var(--color-ink);
+}
+
+.section-drawer--projects[data-open="true"]::before {
+  position: absolute;
+  z-index: 1;
+  top: 0;
+  right: 0;
+  left: 0;
+  height: 3px;
+  content: "";
+  background: var(--color-sun);
+}
+
+.section-drawer--experience {
+  color: var(--color-foam);
+  background: #143e35;
+}
+
+.section-drawer--contact {
+  color: var(--color-foam);
+  background: var(--color-ink);
+}
+
 .hero__name {
   position: absolute;
   z-index: 1;
@@ -314,6 +441,29 @@ a {
 
   .profile-links a {
     gap: 0.3rem;
+  }
+
+  .section-drawer[data-open="true"] {
+    min-height: 0;
+  }
+
+  .section-drawer__trigger {
+    min-height: 5.25rem;
+    font-size: clamp(2.9rem, 15vw, 4.5rem);
+  }
+
+  .section-drawer__panel {
+    flex: none;
+    padding-top: 3rem;
+    padding-bottom: 4rem;
+  }
+
+  .section-drawer__placeholder {
+    min-height: 20rem;
+  }
+
+  .section-drawer--about .section-drawer__panel {
+    background: linear-gradient(90deg, #143e35 0 94%, var(--color-sun) 94% 100%);
   }
 }
 
