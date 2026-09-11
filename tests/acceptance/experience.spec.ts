@@ -23,7 +23,7 @@ test("starts with FinderlyFix selected in one connected career chronology", asyn
 
   const finderlyEmployer = chronology.locator("[data-employer='finderlyfix']");
   const finderly = finderlyEmployer.getByRole("button", {
-    name: /Founding Engineer.*Sep 2025.*Present/i,
+    name: /Founding Software Engineer.*Sep 2025.*Present/i,
   });
   await expect(finderly).toHaveAttribute("aria-pressed", "true");
   await expect(finderlyEmployer.getByText("Current", { exact: true })).toBeVisible();
@@ -32,22 +32,24 @@ test("starts with FinderlyFix selected in one connected career chronology", asyn
   await expect(l3harris.getByText("Current", { exact: true })).toBeVisible();
   await expect(l3harris.getByText("Full time", { exact: true })).toBeVisible();
   await expect(l3harris.locator(".experience-progression__branch")).toBeVisible();
-  await expect(l3harris.getByText("Business Analyst", { exact: true })).toBeVisible();
+  await expect(l3harris.locator(".experience-role")).toHaveCount(3);
+  await expect(l3harris.getByRole("button", { name: /Senior Associate Project Manager/ }))
+    .toBeVisible();
   await expect(
-    l3harris.getByText("Technical Project Manager, RPA", { exact: true }),
+    l3harris.getByRole("button", { name: /^L3Harris, Associate Project Manager,/ }),
   ).toBeVisible();
+  await expect(l3harris.getByRole("button", { name: /Business Analyst/ })).toBeVisible();
 
   const progressionPath = await chronology.evaluate((element) => {
     const branch = element.querySelector<HTMLElement>(".experience-progression__branch")!;
     const chronologyPath = getComputedStyle(element, "::before");
-    const branchPath = getComputedStyle(branch, "::before");
+    const branchPath = branch.querySelector<SVGPathElement>(".experience-progression__flow path")!;
     return {
-      branchPathX:
-        branch.getBoundingClientRect().left + Number.parseFloat(branchPath.left),
+      branchPathX: branch.getBoundingClientRect().left,
       chronologyPathX:
         element.getBoundingClientRect().left + Number.parseFloat(chronologyPath.left),
-      rejoinsAtBottom: branchPath.borderBottomStyle === "solid",
-      splitsAtTop: branchPath.borderTopStyle === "solid",
+      rejoinsAtBottom: branchPath.getAttribute("d")?.endsWith("0 100"),
+      splitsAtTop: branchPath.getAttribute("d")?.startsWith("M 0 0"),
     };
   });
   expect(Math.abs(progressionPath.branchPathX - progressionPath.chronologyPathX)).toBeLessThan(
@@ -58,7 +60,7 @@ test("starts with FinderlyFix selected in one connected career chronology", asyn
 
   const detail = page.getByRole("article");
   await expect(detail.getByRole("heading", { name: "FinderlyFix" })).toBeVisible();
-  await expect(detail.getByText("Founding Engineer", { exact: true })).toBeVisible();
+  await expect(detail.getByText("Founding Software Engineer", { exact: true })).toBeVisible();
   await expect(detail.getByText("Part time", { exact: true })).toBeVisible();
   await expect(detail.getByRole("list", { name: "Contribution highlights" }).getByRole("listitem"))
     .toHaveCount(3);
@@ -83,7 +85,7 @@ test("selects roles from the chronology with ordered keyboard controls", async (
   const detail = page.getByRole("article");
   await expect(detail.getByRole("heading", { name: "L3Harris" })).toBeVisible();
   await expect(
-    detail.getByText("Technical Project Manager, RPA", { exact: true }),
+    detail.getByText("Associate Project Manager", { exact: true }),
   ).toBeVisible();
   await expect(detail.getByText("Full time", { exact: true })).toBeVisible();
   await expect(
@@ -114,7 +116,7 @@ test("expands one role inline in the connected mobile chronology", async ({ page
 
   const l3harris = chronology.locator("[data-employer='l3harris']");
   await l3harris
-    .getByRole("button", { name: /Technical Project Manager, RPA/i })
+    .getByRole("button", { name: /Senior Associate Project Manager/i })
     .click();
   await expect(finderly.getByRole("article")).toHaveCount(0);
   await expect(l3harris.getByRole("article")).toBeVisible();

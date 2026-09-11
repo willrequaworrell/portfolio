@@ -7,7 +7,8 @@ export type EmployerId =
 export type RoleId =
   | "finderlyfix-founding-engineer"
   | "l3harris-business-analyst"
-  | "l3harris-technical-project-manager-rpa"
+  | "l3harris-associate-project-manager"
+  | "l3harris-senior-associate-project-manager"
   | "strategic-retirement-software-engineer"
   | "501database-software-engineer-intern";
 
@@ -21,7 +22,7 @@ export type ExperienceRole = {
   title: string;
   dates: string;
   summary: string;
-  contributions: readonly [string, string, string];
+  contributions: readonly string[];
   impacts: readonly { label: string; value: string }[];
   link: ExperienceLink;
 };
@@ -49,7 +50,7 @@ export const experienceEmployers = [
     roles: [
       {
         id: "finderlyfix-founding-engineer",
-        title: "Founding Engineer",
+        title: "Founding Software Engineer",
         dates: "Sep 2025–Present",
         summary:
           "Owns the AI conversation experience while helping shape a clear, reliable product for diagnosing and tracking home repairs.",
@@ -72,6 +73,33 @@ export const experienceEmployers = [
     scope: "Progressed from enterprise software operations into technical automation delivery.",
     roles: [
       {
+        id: "l3harris-senior-associate-project-manager",
+        title: "Senior Associate Project Manager",
+        dates: "Apr 2026–Present",
+        summary: "Senior Associate Project Manager at L3Harris.",
+        contributions: [],
+        impacts: [],
+        link: { label: "View résumé", href: "/resume.pdf" },
+      },
+      {
+        id: "l3harris-associate-project-manager",
+        title: "Associate Project Manager",
+        dates: "Aug 2023–Apr 2026",
+        summary:
+          "Delivered technical automation work spanning enterprise teams and production environments.",
+        contributions: [
+          "Built AI-enabled project tooling that reduced documentation preparation time by 60%.",
+          "Served as technical liaison on automation projects supporting 45,000 employees.",
+          "Deployed and monitored Blue Prism processes and application servers across environments.",
+        ],
+        impacts: [
+          { label: "Prep time", value: "60% lower" },
+          { label: "Reach", value: "45K employees" },
+          { label: "Savings", value: "$300K+ annually" },
+        ],
+        link: { label: "View résumé", href: "/resume.pdf" },
+      },
+      {
         id: "l3harris-business-analyst",
         title: "Business Analyst",
         dates: "Nov 2021–Aug 2023",
@@ -85,24 +113,6 @@ export const experienceEmployers = [
         impacts: [
           { label: "Portfolio", value: "$1.5M annually" },
           { label: "Vendors", value: "25+" },
-        ],
-        link: { label: "View résumé", href: "/resume.pdf" },
-      },
-      {
-        id: "l3harris-technical-project-manager-rpa",
-        title: "Technical Project Manager, RPA",
-        dates: "Aug 2023–Present",
-        summary:
-          "Leads technical delivery for automation work spanning enterprise teams and production environments.",
-        contributions: [
-          "Built AI-enabled project tooling that reduced documentation preparation time by 60%.",
-          "Serves as technical liaison on automation projects supporting 45,000 employees.",
-          "Deploys and monitors Blue Prism processes and application servers across environments.",
-        ],
-        impacts: [
-          { label: "Prep time", value: "60% lower" },
-          { label: "Reach", value: "45K employees" },
-          { label: "Savings", value: "$300K+ annually" },
         ],
         link: { label: "View résumé", href: "/resume.pdf" },
       },
