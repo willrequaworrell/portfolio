@@ -220,7 +220,124 @@ a {
 }
 
 .section-drawer--about .section-drawer__panel {
-  background: linear-gradient(90deg, #143e35 0 84%, var(--color-sun) 84% 100%);
+  padding: 0;
+  background: #143e35;
+}
+
+.about-profile {
+  display: grid;
+  min-height: 100%;
+  grid-template-columns: minmax(0, 1fr) minmax(20rem, 43%) minmax(8rem, 14%);
+  background: #143e35;
+}
+
+.about-profile__copy {
+  z-index: 1;
+  display: grid;
+  align-content: center;
+  padding: clamp(3rem, 7vw, 7rem) clamp(2rem, 5vw, 5.5rem);
+}
+
+.about-profile__copy h3 {
+  max-width: 13ch;
+  margin: 0;
+  font-size: clamp(2.2rem, 3.2vw, 3.6rem);
+  font-weight: 430;
+  letter-spacing: -0.045em;
+  line-height: 1.02;
+}
+
+.about-profile__introduction,
+.about-profile__perspective {
+  max-width: 36rem;
+  margin: 0;
+  line-height: 1.35;
+}
+
+.about-profile__introduction {
+  margin-top: clamp(1.4rem, 3vh, 2.25rem);
+  font-size: clamp(1.1rem, 1.65vw, 1.45rem);
+}
+
+.about-profile__perspective {
+  margin-top: 1rem;
+  color: rgba(255, 250, 240, 0.68);
+  font-size: clamp(0.88rem, 1vw, 1rem);
+}
+
+.about-profile__strengths {
+  display: grid;
+  gap: 0.65rem;
+  padding: 0;
+  margin: clamp(1.5rem, 3vh, 2.4rem) 0 0;
+  font-size: clamp(0.76rem, 0.95vw, 0.9rem);
+  font-weight: 700;
+  letter-spacing: 0.1em;
+  list-style: none;
+  text-transform: uppercase;
+}
+
+.about-profile__strengths li {
+  display: grid;
+  grid-template-columns: 2.4rem 1fr;
+  align-items: center;
+}
+
+.about-profile__strengths li::before {
+  color: var(--color-sun);
+  font-size: 1.45rem;
+  content: "→";
+}
+
+.about-profile__portrait {
+  position: relative;
+  min-height: 30rem;
+  margin: 0;
+  overflow: hidden;
+  background: #0b2d27;
+}
+
+.about-profile__portrait img {
+  object-fit: cover;
+  object-position: center top;
+  filter: contrast(1.04) saturate(0.9);
+}
+
+.about-profile__rail {
+  display: grid;
+  grid-template-rows: repeat(3, 1fr);
+  padding: 0;
+  margin: 0;
+  color: var(--color-ink);
+  list-style: none;
+  background: var(--color-sun);
+}
+
+.about-profile__rail li {
+  display: grid;
+  align-content: center;
+  justify-items: center;
+  gap: 0.25rem;
+}
+
+.about-profile__rail li + li {
+  border-top: 1px solid rgba(23, 16, 14, 0.44);
+}
+
+.about-profile__rail strong,
+.about-profile__rail span {
+  font-family: "League Gothic", Impact, sans-serif;
+  font-weight: 400;
+  text-transform: uppercase;
+}
+
+.about-profile__rail strong {
+  font-size: clamp(3.5rem, 5vw, 5.5rem);
+  line-height: 0.8;
+}
+
+.about-profile__rail span {
+  font-size: clamp(1.25rem, 1.8vw, 2rem);
 }
 
 .section-drawer--projects {
@@ -864,6 +981,101 @@ a {
   background: var(--color-ink);
 }
 
+.section-drawer--contact .section-drawer__panel {
+  padding: 0;
+}
+
+.contact-panel {
+  display: grid;
+  min-height: 100%;
+  grid-template-rows: auto minmax(0, 1fr) auto;
+  background-color: var(--color-ink);
+  background-image: radial-gradient(rgba(255, 250, 240, 0.04) 0.65px, transparent 0.65px);
+  background-size: 5px 5px;
+}
+
+.contact-panel__invitation {
+  display: grid;
+  grid-template-columns: auto minmax(0, 1fr);
+  gap: clamp(1.25rem, 3vw, 3rem);
+  align-items: center;
+  padding: clamp(1.7rem, 4vh, 3rem) var(--page-gutter);
+  border-bottom: 1px solid rgba(255, 250, 240, 0.3);
+}
+
+.contact-panel__invitation > span {
+  color: var(--color-sun);
+  font-size: clamp(3rem, 5vw, 5rem);
+  line-height: 0.7;
+}
+
+.contact-panel__invitation p {
+  max-width: 58rem;
+  margin: 0;
+  font-size: clamp(0.9rem, 1.4vw, 1.25rem);
+  font-weight: 650;
+  letter-spacing: 0.1em;
+  line-height: 1.5;
+  text-transform: uppercase;
+}
+
+.contact-panel h3 {
+  display: flex;
+  align-items: center;
+  padding: clamp(2rem, 4vh, 3.5rem) var(--page-gutter);
+  margin: 0;
+  font-family: "League Gothic", Impact, sans-serif;
+  font-size: clamp(8rem, 20vw, 21rem);
+  font-weight: 400;
+  letter-spacing: 0.005em;
+  line-height: 0.76;
+  text-transform: uppercase;
+  white-space: nowrap;
+}
+
+.contact-panel__actions {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  border-top: 1px solid rgba(255, 250, 240, 0.3);
+}
+
+.contact-panel__actions > a {
+  display: grid;
+  min-height: 9.5rem;
+  align-content: center;
+  gap: 0.7rem;
+  padding: 1.5rem var(--page-gutter);
+}
+
+.contact-panel__actions > a + a {
+  border-left: 1px solid rgba(255, 250, 240, 0.3);
+}
+
+.contact-panel__action-label {
+  width: max-content;
+  padding-bottom: 0.25rem;
+  font-family: "League Gothic", Impact, sans-serif;
+  font-size: clamp(2.75rem, 4vw, 4.25rem);
+  letter-spacing: 0.06em;
+  line-height: 0.9;
+  text-transform: uppercase;
+  border-bottom: 2px solid var(--color-sun);
+}
+
+.contact-panel__action-label span {
+  color: var(--color-sun);
+}
+
+.contact-panel__action-detail {
+  color: rgba(255, 250, 240, 0.68);
+  font-size: clamp(0.82rem, 1.1vw, 1rem);
+}
+
+.contact-panel__actions > a:hover .contact-panel__action-label,
+.contact-panel__actions > a:focus-visible .contact-panel__action-label {
+  color: var(--color-sun);
+}
+
 .hero__name {
   position: absolute;
   z-index: 1;
@@ -1090,8 +1302,77 @@ a {
     min-height: 20rem;
   }
 
-  .section-drawer--about .section-drawer__panel {
-    background: linear-gradient(90deg, #143e35 0 94%, var(--color-sun) 94% 100%);
+  .about-profile {
+    grid-template-columns: minmax(0, 1fr) 3rem;
+  }
+
+  .about-profile__copy {
+    padding: 3.5rem var(--page-gutter) 3rem;
+  }
+
+  .about-profile__copy h3 {
+    font-size: clamp(2.6rem, 12vw, 3.5rem);
+  }
+
+  .about-profile__portrait {
+    min-height: min(112vw, 34rem);
+  }
+
+  .about-profile__copy,
+  .about-profile__portrait {
+    grid-column: 1;
+  }
+
+  .about-profile__portrait {
+    grid-row: 2;
+  }
+
+  .about-profile__rail {
+    grid-column: 2;
+    grid-row: 1 / span 2;
+  }
+
+  .about-profile__rail strong {
+    font-size: 2rem;
+    writing-mode: vertical-rl;
+  }
+
+  .about-profile__rail span {
+    display: none;
+  }
+
+  .contact-panel {
+    grid-template-rows: auto auto auto;
+  }
+
+  .contact-panel__invitation {
+    gap: 1rem;
+    padding: 2rem var(--page-gutter);
+  }
+
+  .contact-panel__invitation p {
+    font-size: 0.78rem;
+  }
+
+  .contact-panel h3 {
+    min-height: 18rem;
+    padding: 2.5rem var(--page-gutter);
+    font-size: clamp(6.4rem, 31vw, 8rem);
+    line-height: 0.8;
+    white-space: normal;
+  }
+
+  .contact-panel__actions {
+    grid-template-columns: 1fr;
+  }
+
+  .contact-panel__actions > a {
+    min-height: 8.75rem;
+  }
+
+  .contact-panel__actions > a + a {
+    border-top: 1px solid rgba(255, 250, 240, 0.3);
+    border-left: 0;
   }
 
   .section-drawer--projects .section-drawer__panel {

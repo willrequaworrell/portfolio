@@ -8,6 +8,29 @@ export type ProfileLink = {
   href: string;
 };
 
+export type AboutContent = {
+  heading: string;
+  introduction: string;
+  perspective: string;
+  strengths: readonly [string, string, string];
+  portrait: {
+    src: `/assets/${string}.png`;
+    alt: string;
+  };
+};
+
+type ContactAction = {
+  label: "Email" | "LinkedIn";
+  detail: string;
+  href: `mailto:${string}` | `https://${string}`;
+};
+
+export type ContactContent = {
+  invitation: string;
+  heading: string;
+  actions: readonly [ContactAction, ContactAction];
+};
+
 export type PortfolioIdentity = {
   firstName: string;
   lastName: string;
@@ -57,6 +80,41 @@ export const profileLinks = [
   { label: "GitHub", href: "https://github.com/willrequaworrell" },
   { label: "LinkedIn", href: "https://linkedin.com/in/wrw" },
 ] as const satisfies readonly ProfileLink[];
+
+export const about = {
+  heading: "Software engineer with product sense.",
+  introduction:
+    "I work across interfaces, AI systems, and the space between an idea and a useful product.",
+  perspective:
+    "I pair engineering depth with creative product judgment and empathy for the people using what I build.",
+  strengths: [
+    "Thoughtful product engineering",
+    "AI-powered experiences",
+    "Technical project leadership",
+  ],
+  portrait: {
+    src: "/assets/about-portrait.png",
+    alt: "Illustrated portrait of Will Worrell",
+  },
+} as const satisfies AboutContent;
+
+export const contact = {
+  invitation:
+    "Always open to interesting work, thoughtful collaborations, and good conversations.",
+  heading: "Get in touch.",
+  actions: [
+    {
+      label: "Email",
+      detail: "willrequaworrell@gmail.com",
+      href: "mailto:willrequaworrell@gmail.com",
+    },
+    {
+      label: "LinkedIn",
+      detail: "linkedin.com/in/wrw",
+      href: "https://linkedin.com/in/wrw",
+    },
+  ],
+} as const satisfies ContactContent;
 
 export const projects = [
   {

@@ -1,6 +1,8 @@
 "use client";
 
 import { useEffect, useSyncExternalStore } from "react";
+import { AboutProfile } from "@/components/about-profile";
+import { ContactPanel } from "@/components/contact-panel";
 import { ExperienceTimeline } from "@/components/experience-timeline";
 import { ProjectGallery } from "@/components/project-gallery";
 import { defaultProjectSlug, projects, type ProjectSlug } from "@/content/portfolio";
@@ -10,36 +12,24 @@ type SectionId = "about" | "projects" | "experience" | "contact";
 type SectionDrawer = {
   id: SectionId;
   title: string;
-  displayTitle?: string;
-  eyebrow: string;
-  placeholder: string;
 };
 
 const sectionDrawers: readonly SectionDrawer[] = [
   {
     id: "about",
     title: "About",
-    eyebrow: "Profile",
-    placeholder: "A concise introduction to the person behind the products.",
   },
   {
     id: "projects",
     title: "Projects",
-    eyebrow: "Selected work",
-    placeholder: "FinderlyFix, HaaS, and ER-404 project presentations are coming next.",
   },
   {
     id: "experience",
     title: "Experience",
-    eyebrow: "Career",
-    placeholder: "A connected view of roles, responsibilities, and outcomes.",
   },
   {
     id: "contact",
     title: "Contact",
-    displayTitle: "Get in touch",
-    eyebrow: "Say hello",
-    placeholder: "A simple path to start a thoughtful conversation.",
   },
 ];
 
@@ -143,18 +133,14 @@ export function SectionDrawers() {
               hidden={!isOpen}
               id={panelId}
             >
-              {section.id === "projects" ? (
+              {section.id === "about" ? (
+                <AboutProfile />
+              ) : section.id === "projects" ? (
                 <ProjectGallery onSelect={selectProject} selectedSlug={selectedProject} />
               ) : section.id === "experience" ? (
                 <ExperienceTimeline />
               ) : (
-                <div className="section-drawer__placeholder">
-                  <p className="section-drawer__eyebrow">{section.eyebrow}</p>
-                  <h3 id={`${section.id}-title`}>
-                    {section.displayTitle ?? section.title}
-                  </h3>
-                  <p>{section.placeholder}</p>
-                </div>
+                <ContactPanel />
               )}
             </div>
           </section>
