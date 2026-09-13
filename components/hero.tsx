@@ -2,6 +2,7 @@
 
 import { motion } from "motion/react";
 import { useRef, useSyncExternalStore } from "react";
+import { useEntrancePhase } from "@/components/entrance-gate";
 import { identity, navigation, profileLinks } from "@/content/portfolio";
 
 function Arrow() {
@@ -25,6 +26,7 @@ const getTextClipSnapshot = () =>
 const getServerTextClipSnapshot = () => false;
 
 export function Hero() {
+  const entrancePhase = useEntrancePhase();
   const mobileMenu = useRef<HTMLDetailsElement>(null);
   const hydrated = useSyncExternalStore(
     subscribeToStaticCapability,
@@ -40,7 +42,7 @@ export function Hero() {
   return (
     <section
       className="hero"
-      data-ready={hydrated ? "true" : "false"}
+      data-ready={hydrated && entrancePhase === "revealed" ? "true" : "false"}
       data-text-clip={clipSupported ? "supported" : "fallback"}
       data-testid="hero"
       aria-labelledby="page-title"

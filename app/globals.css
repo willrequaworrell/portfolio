@@ -34,6 +34,248 @@ a {
   text-decoration: none;
 }
 
+html:has(.entrance-gate:not([data-phase="revealed"])),
+body:has(.entrance-gate:not([data-phase="revealed"])) {
+  overflow: hidden;
+}
+
+.entrance-gate {
+  position: fixed;
+  z-index: 1000;
+  inset: 0;
+  display: grid;
+  place-items: center;
+  color: var(--color-ocean-deep);
+  background-color: var(--color-paper);
+  background-image: url("/assets/cream-risograph-uniform.png");
+  background-position: center;
+  background-size: cover;
+  clip-path: inset(0);
+  transition:
+    clip-path var(--entrance-field-duration) cubic-bezier(0.65, 0, 0.35, 1)
+      var(--entrance-field-delay),
+    visibility 0s linear var(--entrance-exit-duration);
+}
+
+.entrance-gate[data-phase="exiting"],
+.entrance-gate[data-phase="revealed"] {
+  clip-path: inset(0 0 50% 0);
+}
+
+.entrance-gate[data-phase="revealed"] {
+  visibility: hidden;
+  transition: none;
+}
+
+.entrance-gate__content {
+  display: grid;
+  justify-items: center;
+  gap: clamp(1.15rem, 2.8vh, 1.7rem);
+  transition:
+    opacity 160ms ease 260ms,
+    transform 420ms cubic-bezier(0.34, 1.56, 0.64, 1);
+}
+
+.entrance-gate[data-phase="exiting"] .entrance-gate__content,
+.entrance-gate[data-phase="revealed"] .entrance-gate__content {
+  opacity: 0;
+  transform: scale(0.92) rotate(12deg);
+}
+
+.entrance-gate__mark {
+  position: relative;
+  width: 9.15rem;
+  height: 6rem;
+}
+
+.entrance-gate__mark span {
+  --rosette-x: 0rem;
+  --rosette-y: 0rem;
+  --rosette-turn: 0deg;
+  --end-x: 0rem;
+  --end-y: 0rem;
+  position: absolute;
+  width: 2.85rem;
+  height: 2.85rem;
+  background: var(--color-ocean-deep);
+  border-radius: 50%;
+  animation: loader-disc var(--entrance-cycle-duration) cubic-bezier(0.45, 0, 0.55, 1)
+    infinite;
+  transform-origin: center;
+}
+
+.entrance-gate__mark span:nth-child(1) {
+  top: 0;
+  left: 0;
+  --rosette-x: 3.85rem;
+  --rosette-y: 0.2rem;
+  --rosette-turn: 55deg;
+  --end-x: 3.15rem;
+}
+
+.entrance-gate__mark span:nth-child(2) {
+  top: 0;
+  left: 3.15rem;
+  --rosette-x: 1.55rem;
+  --rosette-y: 1.58rem;
+  --rosette-turn: 115deg;
+  --end-x: 3.15rem;
+}
+
+.entrance-gate__mark span:nth-child(3) {
+  top: 0;
+  left: 6.3rem;
+  --rosette-x: -2.45rem;
+  --rosette-y: 2.95rem;
+  --rosette-turn: 175deg;
+  --end-y: 3.15rem;
+}
+
+.entrance-gate__mark span:nth-child(4) {
+  top: 3.15rem;
+  left: 0;
+  --rosette-x: 2.45rem;
+  --rosette-y: -2.95rem;
+  --rosette-turn: 235deg;
+  --end-y: -3.15rem;
+}
+
+.entrance-gate__mark span:nth-child(5) {
+  top: 3.15rem;
+  left: 3.15rem;
+  --rosette-x: -1.55rem;
+  --rosette-y: -1.58rem;
+  --rosette-turn: 295deg;
+  --end-x: -3.15rem;
+}
+
+.entrance-gate__mark span:nth-child(6) {
+  top: 3.15rem;
+  left: 6.3rem;
+  --rosette-x: -3.85rem;
+  --rosette-y: -0.2rem;
+  --rosette-turn: 355deg;
+  --end-x: -3.15rem;
+}
+
+.entrance-gate__label,
+.entrance-gate__failure p {
+  margin: 0;
+  font-size: 0.78rem;
+  font-weight: 700;
+  letter-spacing: 0.14em;
+}
+
+.entrance-gate__failure {
+  display: grid;
+  justify-items: center;
+  gap: 1rem;
+  max-width: min(30rem, calc(100vw - 3rem));
+  text-align: center;
+}
+
+.entrance-gate__failure p {
+  line-height: 1.5;
+}
+
+.entrance-gate__failure button {
+  padding: 0.6rem 0.9rem;
+  color: var(--color-paper);
+  font: inherit;
+  font-size: 0.75rem;
+  font-weight: 750;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  cursor: pointer;
+  background: var(--color-ocean-deep);
+  border: 1px solid var(--color-ocean-deep);
+}
+
+.entrance-gate__failure button:focus-visible {
+  outline: 3px solid var(--color-sun);
+  outline-offset: 4px;
+}
+
+.entrance-gate[data-outcome="failed"] .entrance-gate__mark span {
+  animation: none;
+}
+
+.entrance-gate[data-phase="exiting"] .entrance-gate__mark span {
+  animation: loader-lock 420ms cubic-bezier(0.34, 1.56, 0.64, 1) both;
+}
+
+@keyframes loader-disc {
+  0%,
+  100% {
+    border-radius: 50%;
+  }
+
+  0% {
+    transform: translate(0, 0) rotate(0deg) skew(0deg) scale(1);
+  }
+
+  26% {
+    transform: translate(calc(var(--rosette-x) * 0.58), calc(var(--rosette-y) * 0.42))
+      rotate(calc(var(--rosette-turn) * 0.42)) skew(-7deg, 4deg) scale(1.1, 0.88);
+  }
+
+  52% {
+    border-radius: 48% 52% 46% 54%;
+    transform: translate(var(--rosette-x), var(--rosette-y)) rotate(var(--rosette-turn))
+      skew(5deg, -4deg) scale(0.94, 1.08);
+  }
+
+  76% {
+    transform: translate(
+        calc(var(--rosette-x) * 0.35 + var(--end-x) * 0.65),
+        calc(var(--rosette-y) * 0.35 + var(--end-y) * 0.65)
+      )
+      rotate(calc(var(--rosette-turn) * 1.45)) skew(-4deg, 2deg) scale(1.06, 0.94);
+  }
+
+  100% {
+    transform: translate(var(--end-x), var(--end-y)) rotate(180deg) skew(0deg) scale(1);
+  }
+}
+
+@keyframes loader-lock {
+  0% {
+    transform: translate(var(--end-x), var(--end-y)) rotate(180deg) scale(1);
+  }
+
+  48% {
+    transform: translate(var(--end-x), var(--end-y)) rotate(192deg) scale(1.09, 0.9);
+  }
+
+  100% {
+    transform: translate(var(--end-x), var(--end-y)) rotate(180deg) scale(1);
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .entrance-gate {
+    transition:
+      opacity 360ms ease 100ms,
+      visibility 0s linear 460ms;
+  }
+
+  .entrance-gate[data-phase="exiting"],
+  .entrance-gate[data-phase="revealed"] {
+    opacity: 0;
+    clip-path: none;
+  }
+
+  .entrance-gate__mark span {
+    animation: none;
+  }
+
+  .entrance-gate[data-phase="exiting"] .entrance-gate__content,
+  .entrance-gate[data-phase="revealed"] .entrance-gate__content {
+    opacity: 0.7;
+    transform: scale(0.98);
+  }
+}
+
 .hero {
   position: relative;
   isolation: isolate;
