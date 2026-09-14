@@ -29,6 +29,19 @@ function messageText(parts: ReturnType<typeof useAssistantSession>["messages"][n
     .join("");
 }
 
+function ThinkingIndicator() {
+  return (
+    <div aria-label="AI guide is thinking" className="assistant-thinking" role="status">
+      <span aria-hidden="true">
+        <i />
+        <i />
+        <i />
+      </span>
+      Thinking…
+    </div>
+  );
+}
+
 export function PortfolioAssistant() {
   const session = useAssistantSession();
   const [open, setOpen] = useState(false);
@@ -38,7 +51,8 @@ export function PortfolioAssistant() {
   const conversationStarted = session.messages.some(({ role }) => role === "user");
   const lastMessage = session.messages.at(-1);
   const waitingForFirstToken =
-    active && lastMessage?.role === "assistant" && messageText(lastMessage.parts).length === 0;
+    active &&
+    (lastMessage?.role !== "assistant" || messageText(lastMessage.parts).length === 0);
 
   useEffect(() => {
     const transcript = transcriptRef.current;
@@ -98,20 +112,21 @@ export function PortfolioAssistant() {
                   <span>{message.role === "user" ? "You" : "AI guide"}</span>
                   {message.role === "assistant" && text ? <SafeAnswer>{text}</SafeAnswer> : null}
                   {message.role === "user" ? <p>{text}</p> : null}
-                  {waitingForFirstToken && message.id === lastMessage?.id ? (
-                    <div aria-label="AI guide is thinking" className="assistant-thinking" role="status">
-                      <span aria-hidden="true">
-                        <i />
-                        <i />
-                        <i />
-                      </span>
-                      Thinking…
-                    </div>
+                  {waitingForFirstToken &&
+                  message.role === "assistant" &&
+                  message.id === lastMessage?.id ? (
+                    <ThinkingIndicator />
                   ) : null}
                   {message.metadata?.interrupted ? <small>Answer interrupted</small> : null}
                 </article>
               );
             })}
+            {waitingForFirstToken && lastMessage?.role !== "assistant" ? (
+              <article className="assistant-message assistant-message--assistant">
+                <span>AI guide</span>
+                <ThinkingIndicator />
+              </article>
+            ) : null}
           </div>
 
           {session.error ? <p className="assistant-error">The answer was interrupted. You can retry.</p> : null}

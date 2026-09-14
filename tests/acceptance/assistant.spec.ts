@@ -99,12 +99,16 @@ test("submits with Enter while Shift+Enter keeps multiline input", async ({ page
 });
 
 test("shows a visible thinking state before the first streamed token", async ({ page }) => {
+  await page.route("**/api/assistant", async (route) => {
+    await new Promise((resolve) => setTimeout(resolve, 750));
+    await route.continue();
+  });
   const assistant = await openAssistant(page);
 
   await assistant.getByLabel("Question").fill("What does Will build?");
   await assistant.getByRole("button", { name: "Send" }).click();
 
-  await expect(assistant.locator(".assistant-thinking")).toBeVisible();
+  await expect(assistant.locator(".assistant-thinking")).toBeVisible({ timeout: 500 });
   await expect(assistant.locator(".assistant-thinking")).toHaveAccessibleName("AI guide is thinking");
   await expect(assistant.locator(".assistant-thinking")).toHaveCount(0, { timeout: 10_000 });
 });
