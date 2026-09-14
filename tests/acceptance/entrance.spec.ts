@@ -13,29 +13,34 @@ test("completes a full authored entrance before revealing the composed hero", as
 
   await expect(entrance).toHaveAttribute("data-phase", "loading");
   await expect(entrance.getByText("Loading…", { exact: true })).toBeVisible();
-  await expect(entrance.locator("[data-loader-disc]")).toHaveCount(6);
+  await expect(entrance.locator("[data-loader-motion]")).toHaveCount(1);
+  await expect(entrance.locator("[data-loader-exit]")).toHaveCount(1);
+  await expect(entrance.locator("[data-loader-static]")).toHaveCount(1);
   await expect(page.locator("main")).toHaveAttribute("inert", "");
 
   await expect(entrance).toHaveAttribute("data-phase", "exiting", {
-    timeout: 2_000,
+    timeout: 5_000,
   });
   await expect(entrance).toHaveAttribute("data-outcome", "ready");
-  await expect(entrance.locator("[data-loader-disc]").first()).toHaveCSS(
+  await expect(entrance.locator("[data-loader-exit]")).toBeVisible();
+  await expect(page.getByTestId("hero")).toHaveAttribute("data-entrance-phase", "exiting");
+  await expect(page.locator(".hero__name-line--first")).toHaveCSS(
     "animation-name",
-    "loader-lock",
+    "hero-name-reveal",
   );
   await expect(entrance).toHaveAttribute("data-phase", "revealed", {
-    timeout: 2_000,
+    timeout: 4_000,
   });
 
   const elapsed = Date.now() - startedAt;
-  expect(elapsed).toBeGreaterThanOrEqual(2_050);
+  expect(elapsed).toBeGreaterThanOrEqual(5_750);
   // Parallel browser workers can delay the assertion itself under load; the
-  // implementation's normal path is 2.35s (1.5s gate + 0.85s exit).
-  expect(elapsed).toBeLessThan(4_200);
+  // implementation completes five loading passes, its flourish, and the staged veil exit.
+  expect(elapsed).toBeLessThan(8_500);
   await expect(page.locator("main")).not.toHaveAttribute("inert", "");
   await expect(page.getByRole("heading", { level: 1, name: "Will Worrell" })).toBeVisible();
   await expect(page.getByTestId("hero")).toHaveAttribute("data-ready", "true");
+  await expect(page.getByTestId("hero")).toHaveAttribute("data-entrance-phase", "revealed");
   await expect(page.locator(".hero__ocean")).toHaveCSS(
     "background-image",
     /hero-surfers-wide\.png/,
@@ -44,7 +49,6 @@ test("completes a full authored entrance before revealing the composed hero", as
   await expect(page.locator(".hero__role")).toContainText("Software Engineer");
   await expect(page.getByRole("navigation", { name: "External profiles" })).toBeVisible();
 });
-
 test("immediate readiness still waits for the minimum complete cycles", async ({ page }) => {
   await page.addInitScript(() => {
     class ImmediatelyReadyImage {
@@ -85,34 +89,19 @@ test("immediate readiness still waits for the minimum complete cycles", async ({
       }),
   );
 
-  expect(phaseDurations.exiting).toBeGreaterThanOrEqual(1_200);
-  expect(phaseDurations.revealed).toBeGreaterThanOrEqual(2_050);
+  expect(phaseDurations.exiting).toBeGreaterThanOrEqual(2_400);
+  expect(phaseDurations.revealed).toBeGreaterThanOrEqual(5_750);
 });
 
-test("matches the approved half-second six-disc motion treatment", async ({ page }) => {
+test("matches the supplied reference mark motion treatment", async ({ page }) => {
   const entrance = await openEntrance(page);
-  const discs = entrance.locator("[data-loader-disc]");
+  const referenceMotion = entrance.locator("[data-loader-motion]");
 
-  const treatment = await discs.evaluateAll((elements) =>
-    elements.map((element) => {
-      const styles = getComputedStyle(element);
-      return {
-        animationDuration: styles.animationDuration,
-        animationIterationCount: styles.animationIterationCount,
-        backgroundColor: styles.backgroundColor,
-      };
-    }),
-  );
-
-  expect(treatment).toHaveLength(6);
-  expect(treatment.every(({ animationDuration }) => animationDuration === "0.5s")).toBe(true);
-  expect(
-    treatment.every(({ animationIterationCount }) => animationIterationCount === "infinite"),
-  ).toBe(true);
-  expect(treatment.every(({ backgroundColor }) => backgroundColor === "rgb(6, 62, 73)")).toBe(
-    true,
-  );
-  await expect(entrance).toHaveCSS(
+  await expect(referenceMotion).toHaveAttribute("src", "/assets/entrance-mark.gif");
+  await expect(referenceMotion).toBeVisible();
+  await expect(referenceMotion).toHaveCSS("object-fit", "contain");
+  await expect(entrance).toHaveCSS("background-image", "none");
+  await expect(page.locator(".hero__paper")).toHaveCSS(
     "background-image",
     /cream-risograph-uniform\.png/,
   );
@@ -132,18 +121,19 @@ test("keeps looping until delayed critical media is ready", async ({ page }) => 
   await page.waitForTimeout(1_750);
 
   await expect(entrance).toHaveAttribute("data-phase", "loading");
-  const firstDisc = entrance.locator("[data-loader-disc]").first();
-  await expect(firstDisc).toHaveCSS("animation-duration", "0.5s");
-  await expect(firstDisc).toHaveCSS("animation-iteration-count", "infinite");
+  const referenceMotion = entrance.locator("[data-loader-motion]");
+  await expect(referenceMotion).toBeVisible();
+  await expect(referenceMotion).toHaveAttribute("src", "/assets/entrance-mark.gif");
 
   releaseHeroImage();
   await page.waitForTimeout(100);
   await expect(entrance).toHaveAttribute("data-phase", "loading");
   await expect(entrance).toHaveAttribute("data-phase", "exiting", {
-    timeout: 1_000,
+    timeout: 3_000,
   });
+  await expect(entrance.locator("[data-loader-exit]")).toBeVisible();
   await expect(entrance).toHaveAttribute("data-phase", "revealed", {
-    timeout: 2_000,
+    timeout: 4_000,
   });
 });
 
@@ -227,7 +217,7 @@ test("contains a critical readiness failure and retries with a fresh page load",
 
   await expect(page.getByTestId("entrance")).toHaveAttribute("data-phase", "loading");
   await expect(page.getByTestId("entrance")).toHaveAttribute("data-phase", "revealed", {
-    timeout: 4_000,
+    timeout: 8_000,
   });
 });
 
@@ -250,23 +240,25 @@ test("keeps the failure field after the five-second readiness ceiling", async ({
 
 test("replays the entrance after a hard refresh", async ({ page }) => {
   let entrance = await openEntrance(page);
-  await expect(entrance).toHaveAttribute("data-phase", "revealed", { timeout: 4_000 });
+  await expect(entrance).toHaveAttribute("data-phase", "revealed", { timeout: 8_000 });
 
   await page.reload({ waitUntil: "domcontentloaded" });
   entrance = page.getByTestId("entrance");
   await expect(entrance).toHaveAttribute("data-phase", "loading");
   await expect(page.locator("main")).toHaveAttribute("inert", "");
-  await expect(entrance).toHaveAttribute("data-phase", "revealed", { timeout: 4_000 });
+  await expect(entrance).toHaveAttribute("data-phase", "revealed", { timeout: 8_000 });
 });
 
 test("uses a static mark and restrained crossfade for reduced motion", async ({ page }) => {
   await page.emulateMedia({ reducedMotion: "reduce" });
   const entrance = await openEntrance(page);
-  const firstDisc = entrance.locator("[data-loader-disc]").first();
+  const referenceMotion = entrance.locator("[data-loader-motion]");
+  const staticMark = entrance.locator("[data-loader-static]");
 
-  await expect(firstDisc).toHaveCSS("animation-name", "none");
-  await expect(entrance).toHaveAttribute("data-phase", "exiting", { timeout: 2_000 });
+  await expect(referenceMotion).toBeHidden();
+  await expect(staticMark).toBeVisible();
+  await expect(entrance).toHaveAttribute("data-phase", "exiting", { timeout: 5_000 });
   await expect(entrance).toHaveCSS("clip-path", "none");
   await expect(entrance).toHaveCSS("opacity", "0");
-  await expect(entrance).toHaveAttribute("data-phase", "revealed", { timeout: 2_000 });
+  await expect(entrance).toHaveAttribute("data-phase", "revealed", { timeout: 4_000 });
 });

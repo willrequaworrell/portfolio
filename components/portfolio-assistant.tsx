@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, type FormEvent } from "react";
+import { useEffect, useRef, useState, type FormEvent } from "react";
 import ReactMarkdown from "react-markdown";
 import { useAssistantSession } from "@/lib/assistant-session";
 
@@ -33,8 +33,17 @@ export function PortfolioAssistant() {
   const session = useAssistantSession();
   const [open, setOpen] = useState(false);
   const [input, setInput] = useState("");
+  const transcriptRef = useRef<HTMLDivElement>(null);
   const active = session.status === "submitted" || session.status === "streaming";
   const conversationStarted = session.messages.some(({ role }) => role === "user");
+  const lastMessage = session.messages.at(-1);
+  const waitingForFirstToken =
+    active && lastMessage?.role === "assistant" && messageText(lastMessage.parts).length === 0;
+
+  useEffect(() => {
+    const transcript = transcriptRef.current;
+    if (transcript) transcript.scrollTop = transcript.scrollHeight;
+  }, [active, session.messages]);
 
   async function ask(question: string) {
     setInput("");
@@ -43,7 +52,8 @@ export function PortfolioAssistant() {
 
   function submit(event: FormEvent) {
     event.preventDefault();
-    void ask(input);
+    if (!input.trim() || active || !session.hydrated) return;
+    void ask(input.trim());
   }
 
   async function close() {
@@ -67,7 +77,7 @@ export function PortfolioAssistant() {
             <button aria-label="Close AI guide" onClick={() => void close()} type="button">×</button>
           </header>
 
-          <div aria-live="polite" className="assistant-transcript">
+          <div aria-live="polite" className="assistant-transcript" ref={transcriptRef}>
             {!conversationStarted ? (
               <div className="assistant-intro">
                 <p>I can answer concise questions from Will’s supplied portfolio material.</p>
@@ -86,7 +96,18 @@ export function PortfolioAssistant() {
               return (
                 <article className={`assistant-message assistant-message--${message.role}`} key={message.id}>
                   <span>{message.role === "user" ? "You" : "AI guide"}</span>
-                  {message.role === "assistant" ? <SafeAnswer>{text}</SafeAnswer> : <p>{text}</p>}
+                  {message.role === "assistant" && text ? <SafeAnswer>{text}</SafeAnswer> : null}
+                  {message.role === "user" ? <p>{text}</p> : null}
+                  {waitingForFirstToken && message.id === lastMessage?.id ? (
+                    <div aria-label="AI guide is thinking" className="assistant-thinking" role="status">
+                      <span aria-hidden="true">
+                        <i />
+                        <i />
+                        <i />
+                      </span>
+                      Thinking…
+                    </div>
+                  ) : null}
                   {message.metadata?.interrupted ? <small>Answer interrupted</small> : null}
                 </article>
               );
@@ -110,6 +131,13 @@ export function PortfolioAssistant() {
                 id="assistant-question"
                 maxLength={2_000}
                 onChange={(event) => setInput(event.target.value)}
+                onKeyDown={(event) => {
+                  if (event.key !== "Enter" || event.shiftKey || event.nativeEvent.isComposing) return;
+                  event.preventDefault();
+                  if (input.trim() && !active && session.hydrated) {
+                    event.currentTarget.form?.requestSubmit();
+                  }
+                }}
                 placeholder="Ask about Will’s work…"
                 rows={2}
                 value={input}

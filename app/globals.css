@@ -7,6 +7,7 @@
   --color-ocean-shadow: #021d26;
   --color-foam: #fffaf0;
   --color-sun: #f5d34f;
+  --hero-paper-bottom: 48%;
   --page-gutter: clamp(1.25rem, 5.55vw, 5rem);
   --ocean-image: linear-gradient(rgba(2, 42, 48, 0.24), rgba(1, 28, 37, 0.42)),
     url("/assets/hero-surfers-wide.png");
@@ -46,10 +47,7 @@ body:has(.entrance-gate:not([data-phase="revealed"])) {
   display: grid;
   place-items: center;
   color: var(--color-ocean-deep);
-  background-color: var(--color-paper);
-  background-image: url("/assets/cream-risograph-uniform.png");
-  background-position: center;
-  background-size: cover;
+  background: transparent;
   clip-path: inset(0);
   transition:
     clip-path var(--entrance-field-duration) cubic-bezier(0.65, 0, 0.35, 1)
@@ -57,9 +55,27 @@ body:has(.entrance-gate:not([data-phase="revealed"])) {
     visibility 0s linear var(--entrance-exit-duration);
 }
 
+.entrance-gate::before {
+  position: absolute;
+  z-index: 0;
+  inset: 0;
+  content: "";
+  pointer-events: none;
+  background-color: var(--color-paper);
+  background-image: url("/assets/cream-risograph-uniform.png");
+  background-position: center;
+  background-size: cover;
+  transition: opacity var(--entrance-paper-fade-duration) ease var(--entrance-paper-fade-delay);
+}
+
 .entrance-gate[data-phase="exiting"],
 .entrance-gate[data-phase="revealed"] {
-  clip-path: inset(0 0 50% 0);
+  clip-path: inset(0 0 var(--hero-paper-bottom) 0);
+}
+
+.entrance-gate[data-phase="exiting"]::before,
+.entrance-gate[data-phase="revealed"]::before {
+  opacity: 0;
 }
 
 .entrance-gate[data-phase="revealed"] {
@@ -68,94 +84,39 @@ body:has(.entrance-gate:not([data-phase="revealed"])) {
 }
 
 .entrance-gate__content {
+  position: relative;
+  z-index: 1;
   display: grid;
   justify-items: center;
   gap: clamp(1.15rem, 2.8vh, 1.7rem);
-  transition:
-    opacity 160ms ease 260ms,
-    transform 420ms cubic-bezier(0.34, 1.56, 0.64, 1);
+  transition: opacity var(--entrance-mark-fade-duration) ease var(--entrance-mark-fade-delay);
 }
 
 .entrance-gate[data-phase="exiting"] .entrance-gate__content,
 .entrance-gate[data-phase="revealed"] .entrance-gate__content {
   opacity: 0;
-  transform: scale(0.92) rotate(12deg);
 }
 
 .entrance-gate__mark {
   position: relative;
-  width: 9.15rem;
-  height: 6rem;
+  width: clamp(10.75rem, 18vw, 12rem);
+  aspect-ratio: 1;
 }
 
-.entrance-gate__mark span {
-  --rosette-x: 0rem;
-  --rosette-y: 0rem;
-  --rosette-turn: 0deg;
-  --end-x: 0rem;
-  --end-y: 0rem;
+.entrance-gate__mark img {
   position: absolute;
-  width: 2.85rem;
-  height: 2.85rem;
-  background: var(--color-ocean-deep);
-  border-radius: 50%;
-  animation: loader-disc var(--entrance-cycle-duration) cubic-bezier(0.45, 0, 0.55, 1)
-    infinite;
-  transform-origin: center;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  object-fit: contain;
 }
 
-.entrance-gate__mark span:nth-child(1) {
-  top: 0;
-  left: 0;
-  --rosette-x: 3.85rem;
-  --rosette-y: 0.2rem;
-  --rosette-turn: 55deg;
-  --end-x: 3.15rem;
+.entrance-gate__mark-static {
+  display: none;
 }
 
-.entrance-gate__mark span:nth-child(2) {
-  top: 0;
-  left: 3.15rem;
-  --rosette-x: 1.55rem;
-  --rosette-y: 1.58rem;
-  --rosette-turn: 115deg;
-  --end-x: 3.15rem;
-}
-
-.entrance-gate__mark span:nth-child(3) {
-  top: 0;
-  left: 6.3rem;
-  --rosette-x: -2.45rem;
-  --rosette-y: 2.95rem;
-  --rosette-turn: 175deg;
-  --end-y: 3.15rem;
-}
-
-.entrance-gate__mark span:nth-child(4) {
-  top: 3.15rem;
-  left: 0;
-  --rosette-x: 2.45rem;
-  --rosette-y: -2.95rem;
-  --rosette-turn: 235deg;
-  --end-y: -3.15rem;
-}
-
-.entrance-gate__mark span:nth-child(5) {
-  top: 3.15rem;
-  left: 3.15rem;
-  --rosette-x: -1.55rem;
-  --rosette-y: -1.58rem;
-  --rosette-turn: 295deg;
-  --end-x: -3.15rem;
-}
-
-.entrance-gate__mark span:nth-child(6) {
-  top: 3.15rem;
-  left: 6.3rem;
-  --rosette-x: -3.85rem;
-  --rosette-y: -0.2rem;
-  --rosette-turn: 355deg;
-  --end-x: -3.15rem;
+.entrance-gate__mark-exit {
+  display: none;
 }
 
 .entrance-gate__label,
@@ -196,60 +157,15 @@ body:has(.entrance-gate:not([data-phase="revealed"])) {
   outline-offset: 4px;
 }
 
-.entrance-gate[data-outcome="failed"] .entrance-gate__mark span {
-  animation: none;
+.entrance-gate[data-outcome="failed"] .entrance-gate__mark-motion,
+.entrance-gate[data-outcome="failed"] .entrance-gate__mark-exit,
+.entrance-gate[data-phase="exiting"] .entrance-gate__mark-motion {
+  display: none;
 }
 
-.entrance-gate[data-phase="exiting"] .entrance-gate__mark span {
-  animation: loader-lock 420ms cubic-bezier(0.34, 1.56, 0.64, 1) both;
-}
-
-@keyframes loader-disc {
-  0%,
-  100% {
-    border-radius: 50%;
-  }
-
-  0% {
-    transform: translate(0, 0) rotate(0deg) skew(0deg) scale(1);
-  }
-
-  26% {
-    transform: translate(calc(var(--rosette-x) * 0.58), calc(var(--rosette-y) * 0.42))
-      rotate(calc(var(--rosette-turn) * 0.42)) skew(-7deg, 4deg) scale(1.1, 0.88);
-  }
-
-  52% {
-    border-radius: 48% 52% 46% 54%;
-    transform: translate(var(--rosette-x), var(--rosette-y)) rotate(var(--rosette-turn))
-      skew(5deg, -4deg) scale(0.94, 1.08);
-  }
-
-  76% {
-    transform: translate(
-        calc(var(--rosette-x) * 0.35 + var(--end-x) * 0.65),
-        calc(var(--rosette-y) * 0.35 + var(--end-y) * 0.65)
-      )
-      rotate(calc(var(--rosette-turn) * 1.45)) skew(-4deg, 2deg) scale(1.06, 0.94);
-  }
-
-  100% {
-    transform: translate(var(--end-x), var(--end-y)) rotate(180deg) skew(0deg) scale(1);
-  }
-}
-
-@keyframes loader-lock {
-  0% {
-    transform: translate(var(--end-x), var(--end-y)) rotate(180deg) scale(1);
-  }
-
-  48% {
-    transform: translate(var(--end-x), var(--end-y)) rotate(192deg) scale(1.09, 0.9);
-  }
-
-  100% {
-    transform: translate(var(--end-x), var(--end-y)) rotate(180deg) scale(1);
-  }
+.entrance-gate[data-phase="exiting"] .entrance-gate__mark-exit,
+.entrance-gate[data-outcome="failed"] .entrance-gate__mark-static {
+  display: block;
 }
 
 @media (prefers-reduced-motion: reduce) {
@@ -259,20 +175,32 @@ body:has(.entrance-gate:not([data-phase="revealed"])) {
       visibility 0s linear 460ms;
   }
 
+  .entrance-gate::before {
+    transition: none;
+  }
+
   .entrance-gate[data-phase="exiting"],
   .entrance-gate[data-phase="revealed"] {
     opacity: 0;
     clip-path: none;
   }
 
-  .entrance-gate__mark span {
-    animation: none;
+  .entrance-gate__mark-motion {
+    display: none;
+  }
+
+  .entrance-gate__mark-exit,
+  .entrance-gate[data-phase="exiting"] .entrance-gate__mark-exit {
+    display: none;
+  }
+
+  .entrance-gate__mark-static {
+    display: block;
   }
 
   .entrance-gate[data-phase="exiting"] .entrance-gate__content,
   .entrance-gate[data-phase="revealed"] .entrance-gate__content {
     opacity: 0.7;
-    transform: scale(0.98);
   }
 }
 
@@ -287,7 +215,7 @@ body:has(.entrance-gate:not([data-phase="revealed"])) {
 .hero__paper {
   position: absolute;
   z-index: -1;
-  inset: 0 0 48%;
+  inset: 0 0 var(--hero-paper-bottom);
   opacity: 1;
   background-color: var(--color-paper);
   background-image: url("/assets/cream-risograph-uniform.png");
@@ -448,7 +376,9 @@ body:has(.entrance-gate:not([data-phase="revealed"])) {
 .assistant-window {
   display: grid;
   width: min(25rem, calc(100vw - 2rem));
+  height: min(42rem, calc(100svh - 2rem));
   max-height: min(42rem, calc(100svh - 2rem));
+  grid-template-rows: auto minmax(0, 1fr) auto auto auto;
   overflow: hidden;
   color: var(--color-ink);
   background: var(--color-paper);
@@ -494,10 +424,13 @@ body:has(.entrance-gate:not([data-phase="revealed"])) {
 
 .assistant-transcript {
   display: grid;
+  min-height: 0;
   gap: 0.9rem;
-  min-height: 12rem;
+  align-content: start;
   padding: 1rem;
   overflow-y: auto;
+  overscroll-behavior: contain;
+  scrollbar-gutter: stable;
 }
 
 .assistant-intro > p,
@@ -539,6 +472,51 @@ body:has(.entrance-gate:not([data-phase="revealed"])) {
 .assistant-error {
   color: #8a2f24;
   font-size: 0.72rem;
+}
+
+.assistant-thinking {
+  display: flex;
+  gap: 0.55rem;
+  align-items: center;
+  margin-top: 0.55rem;
+  color: color-mix(in srgb, var(--color-ocean-deep), transparent 18%);
+  font-size: 0.78rem;
+  font-weight: 700;
+}
+
+.assistant-thinking > span {
+  display: flex;
+  gap: 0.2rem;
+}
+
+.assistant-thinking i {
+  width: 0.38rem;
+  height: 0.38rem;
+  background: var(--color-ocean-deep);
+  border-radius: 50%;
+  animation: assistant-thinking-dot 900ms ease-in-out infinite;
+}
+
+.assistant-thinking i:nth-child(2) {
+  animation-delay: 120ms;
+}
+
+.assistant-thinking i:nth-child(3) {
+  animation-delay: 240ms;
+}
+
+@keyframes assistant-thinking-dot {
+  0%,
+  60%,
+  100% {
+    opacity: 0.35;
+    transform: translateY(0);
+  }
+
+  30% {
+    opacity: 1;
+    transform: translateY(-0.22rem);
+  }
 }
 
 .assistant-actions {
@@ -601,6 +579,19 @@ body:has(.entrance-gate:not([data-phase="revealed"])) {
   color: rgb(23 16 14 / 68%);
   font-size: 0.65rem;
   line-height: 1.35;
+}
+
+@media (min-width: 901px) {
+  main:has(.assistant-shell) .profile-links {
+    bottom: calc(clamp(2rem, 5.5vh, 4rem) + 4.75rem);
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .assistant-thinking i {
+    opacity: 0.65;
+    animation: none;
+  }
 }
 
 @media (max-width: 480px) {
@@ -1534,6 +1525,42 @@ body:has(.entrance-gate:not([data-phase="revealed"])) {
   display: block;
   color: var(--color-ocean-deep);
   line-height: 0.74;
+}
+
+.hero[data-entrance-phase="loading"] .hero__name-line,
+.hero[data-entrance-phase="exiting"] .hero__name-line {
+  opacity: 0;
+  transform: translateY(0.14em);
+}
+
+.hero[data-entrance-phase="exiting"] .hero__name-line {
+  animation: hero-name-reveal var(--entrance-paper-fade-duration)
+    cubic-bezier(0.22, 1, 0.36, 1) var(--entrance-paper-fade-delay) both;
+}
+
+.hero[data-entrance-phase="exiting"] .hero__name-line--last {
+  animation-duration: calc(var(--entrance-paper-fade-duration) - 80ms);
+  animation-delay: calc(var(--entrance-paper-fade-delay) + 80ms);
+}
+
+@keyframes hero-name-reveal {
+  from {
+    opacity: 0;
+    transform: translateY(0.14em);
+  }
+
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .hero[data-entrance-phase] .hero__name-line {
+    opacity: 1;
+    animation: none;
+    transform: none;
+  }
 }
 
 @supports ((background-clip: text) or (-webkit-background-clip: text)) {

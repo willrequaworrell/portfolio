@@ -1,5 +1,6 @@
 "use client";
 
+import NextImage from "next/image";
 import {
   createContext,
   useContext,
@@ -13,11 +14,19 @@ import {
 type EntrancePhase = "loading" | "exiting" | "revealed";
 type ReadinessOutcome = "pending" | "ready" | "failed";
 
-const cycleDuration = 500;
-const minimumLoadingDuration = 1_500;
+// The loading segment is ~540ms; five passes keeps the entrance from overstaying.
+const loadingLoopDuration = 540;
+const loadingLoopCount = 5;
+const cycleDuration = loadingLoopDuration * loadingLoopCount;
+const minimumLoadingDuration = cycleDuration;
+const completionFlourishDuration = 1_500;
+const markFadeDuration = 300;
+const markFadeDelay = completionFlourishDuration;
 const fieldTransitionDuration = 700;
-const fieldTransitionDelay = 150;
-const exitDuration = fieldTransitionDuration + fieldTransitionDelay;
+const fieldTransitionDelay = markFadeDelay + markFadeDuration;
+const paperFadeDuration = 650;
+const paperFadeDelay = fieldTransitionDelay + fieldTransitionDuration;
+const exitDuration = paperFadeDelay + paperFadeDuration;
 const readinessTimeout = 5_000;
 const heroImageSource = "/assets/hero-surfers-wide.png";
 
@@ -26,7 +35,6 @@ const EntrancePhaseContext = createContext<EntrancePhase>("loading");
 export function useEntrancePhase() {
   return useContext(EntrancePhaseContext);
 }
-
 function waitForHeroImage() {
   return new Promise<void>((resolve, reject) => {
     const image = new Image();
@@ -116,15 +124,22 @@ export function EntranceGate({ children }: { children: ReactNode }) {
 
   const isCovered = phase !== "revealed";
   const entranceTiming = {
-    "--entrance-cycle-duration": `${cycleDuration}ms`,
     "--entrance-field-duration": `${fieldTransitionDuration}ms`,
     "--entrance-field-delay": `${fieldTransitionDelay}ms`,
+    "--entrance-mark-fade-duration": `${markFadeDuration}ms`,
+    "--entrance-mark-fade-delay": `${markFadeDelay}ms`,
+    "--entrance-paper-fade-duration": `${paperFadeDuration}ms`,
+    "--entrance-paper-fade-delay": `${paperFadeDelay}ms`,
     "--entrance-exit-duration": `${exitDuration}ms`,
   } as CSSProperties;
 
   return (
     <EntrancePhaseContext.Provider value={phase}>
-      <main aria-hidden={isCovered || undefined} inert={isCovered || undefined}>
+      <main
+        aria-hidden={isCovered || undefined}
+        inert={isCovered || undefined}
+        style={entranceTiming}
+      >
         {children}
       </main>
 
@@ -138,9 +153,33 @@ export function EntranceGate({ children }: { children: ReactNode }) {
       >
         <div className="entrance-gate__content">
           <div aria-hidden="true" className="entrance-gate__mark">
-            {Array.from({ length: 6 }, (_, index) => (
-              <span data-loader-disc="" key={index} />
-            ))}
+            <NextImage
+              alt=""
+              className="entrance-gate__mark-motion"
+              data-loader-motion=""
+              height={512}
+              loading="eager"
+              src="/assets/entrance-mark.gif"
+              unoptimized
+              width={512}
+            />
+            <NextImage
+              alt=""
+              className="entrance-gate__mark-exit"
+              data-loader-exit=""
+              height={512}
+              src="/assets/entrance-mark-exit.gif"
+              unoptimized
+              width={512}
+            />
+            <NextImage
+              alt=""
+              className="entrance-gate__mark-static"
+              data-loader-static=""
+              height={512}
+              src="/assets/entrance-mark-static.png"
+              width={512}
+            />
           </div>
 
           {outcome === "failed" ? (

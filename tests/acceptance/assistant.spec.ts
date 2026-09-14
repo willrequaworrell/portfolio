@@ -3,23 +3,24 @@ import { expect, test } from "@playwright/test";
 test.skip(process.env.ASSISTANT_EXPECT_ENABLED !== "true", "requires the enabled fake-model build");
 
 async function openAssistant(page: import("@playwright/test").Page) {
-  await page.addInitScript(() => {
-    class ImmediatelyReadyImage {
-      complete = true;
-      naturalWidth = 1;
-      decoding = "async";
-      decode() { return Promise.resolve(); }
-      set src(_source: string) {}
-    }
-    Object.defineProperty(window, "Image", { value: ImmediatelyReadyImage });
-    Object.defineProperty(document, "fonts", { value: { ready: Promise.resolve() } });
-  });
   await page.goto("/");
   await expect(page.getByTestId("entrance")).toHaveAttribute("data-phase", "revealed", {
-    timeout: 4_000,
+    timeout: 9_000,
   });
   await page.getByRole("button", { name: "Ask the AI guide" }).click();
   return page.getByRole("dialog", { name: "AI portfolio guide" });
+}
+
+async function sendQuestion(
+  assistant: import("@playwright/test").Locator,
+  question: string,
+) {
+  await assistant.getByLabel("Question").fill(question);
+  await assistant.getByRole("button", { name: "Send" }).click();
+  await expect(assistant.getByRole("button", { name: "Stop" })).toBeVisible();
+  await expect(assistant.getByRole("button", { name: "Stop" })).toHaveCount(0, {
+    timeout: 10_000,
+  });
 }
 
 test("streams a grounded answer through the real route and keeps the disclosure visible", async ({ page }) => {
@@ -40,7 +41,7 @@ test("restores only the current tab conversation and clears it explicitly", asyn
   await expect(assistant.getByText("Will is a product-minded software engineer", { exact: false })).toBeVisible();
 
   await page.reload();
-  await expect(page.getByTestId("entrance")).toHaveAttribute("data-phase", "revealed", { timeout: 4_000 });
+  await expect(page.getByTestId("entrance")).toHaveAttribute("data-phase", "revealed", { timeout: 9_000 });
   await page.getByRole("button", { name: "Ask the AI guide" }).click();
   assistant = page.getByRole("dialog", { name: "AI portfolio guide" });
   await expect(assistant.getByText("What does Will build?")).toBeVisible();
@@ -76,4 +77,93 @@ test("closing during generation aborts and preserves the partial answer", async 
 
   await expect(assistant.getByText("Answer interrupted")).toBeVisible();
   await expect(assistant.getByRole("button", { name: "Retry" })).toBeVisible();
+});
+
+test("submits with Enter while Shift+Enter keeps multiline input", async ({ page }) => {
+  const assistant = await openAssistant(page);
+  const question = assistant.getByLabel("Question");
+
+  await question.fill("First line");
+  await question.press("Shift+Enter");
+  await question.type("Second line");
+  await expect(question).toHaveValue("First line\nSecond line");
+
+  await question.fill("What does Will build?");
+  await question.press("Enter");
+
+  await expect(question).toHaveValue("");
+  await expect(assistant.getByText("What does Will build?", { exact: true })).toBeVisible();
+  await expect(
+    assistant.getByText("Will is a product-minded software engineer", { exact: false }),
+  ).toBeVisible();
+});
+
+test("shows a visible thinking state before the first streamed token", async ({ page }) => {
+  const assistant = await openAssistant(page);
+
+  await assistant.getByLabel("Question").fill("What does Will build?");
+  await assistant.getByRole("button", { name: "Send" }).click();
+
+  await expect(assistant.locator(".assistant-thinking")).toBeVisible();
+  await expect(assistant.locator(".assistant-thinking")).toHaveAccessibleName("AI guide is thinking");
+  await expect(assistant.locator(".assistant-thinking")).toHaveCount(0, { timeout: 10_000 });
+});
+
+test("keeps long conversations inside a scrollable transcript", async ({ page }) => {
+  await page.setViewportSize({ width: 1_280, height: 700 });
+  const assistant = await openAssistant(page);
+
+  for (let index = 0; index < 6; index += 1) {
+    await sendQuestion(assistant, `What does Will build? ${index}`);
+  }
+
+  const transcript = assistant.locator(".assistant-transcript");
+  const dimensions = await transcript.evaluate((element) => {
+    const transcriptBounds = element.getBoundingClientRect();
+    const dialogBounds = element.closest(".assistant-window")!.getBoundingClientRect();
+    element.scrollTop = element.scrollHeight;
+    return {
+      clientHeight: element.clientHeight,
+      scrollHeight: element.scrollHeight,
+      scrollTop: element.scrollTop,
+      transcriptTop: transcriptBounds.top,
+      transcriptBottom: transcriptBounds.bottom,
+      dialogTop: dialogBounds.top,
+      dialogBottom: dialogBounds.bottom,
+    };
+  });
+
+  expect(dimensions.scrollHeight).toBeGreaterThan(dimensions.clientHeight);
+  expect(dimensions.scrollTop).toBeGreaterThan(0);
+  expect(dimensions.transcriptTop).toBeGreaterThanOrEqual(dimensions.dialogTop);
+  expect(dimensions.transcriptBottom).toBeLessThanOrEqual(dimensions.dialogBottom);
+});
+
+test("does not cover the hero external-profile controls", async ({ page }) => {
+  await page.setViewportSize({ width: 1_280, height: 800 });
+  await page.goto("/");
+  await expect(page.getByTestId("entrance")).toHaveAttribute("data-phase", "revealed", {
+    timeout: 9_000,
+  });
+
+  const launcherBounds = await page.getByRole("button", { name: "Ask the AI guide" }).boundingBox();
+  const externalBounds = await page
+    .getByRole("navigation", { name: "External profiles" })
+    .getByRole("link")
+    .evaluateAll((links) =>
+      links.map((link) => {
+        const bounds = link.getBoundingClientRect();
+        return { left: bounds.left, right: bounds.right, top: bounds.top, bottom: bounds.bottom };
+      }),
+    );
+
+  expect(launcherBounds).not.toBeNull();
+  for (const bounds of externalBounds) {
+    const overlaps =
+      launcherBounds!.x < bounds.right &&
+      launcherBounds!.x + launcherBounds!.width > bounds.left &&
+      launcherBounds!.y < bounds.bottom &&
+      launcherBounds!.y + launcherBounds!.height > bounds.top;
+    expect(overlaps).toBe(false);
+  }
 });

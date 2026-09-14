@@ -42,6 +42,7 @@ export function Hero() {
   return (
     <section
       className="hero"
+      data-entrance-phase={entrancePhase}
       data-ready={hydrated && entrancePhase === "revealed" ? "true" : "false"}
       data-text-clip={clipSupported ? "supported" : "fallback"}
       data-testid="hero"
